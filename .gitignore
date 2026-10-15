@@ -37,11 +37,13 @@
 *.exe
 *.out
 *.app
+irc
 
 # Build directories
 build/
 Build/
 build-*/
+obj/
 
 # CMake generated files
 CMakeFiles/
