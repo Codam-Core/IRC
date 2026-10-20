@@ -25,11 +25,11 @@ std::string Server::get_password() const
 }
 
 // Member functions
-static std::string Server::parse_password(const std::string &password_str)
+std::string Server::parse_password(const std::string &password_str)
 {
 	if (password_str == "")
 	{
-		throw std::invalid_argument(this.invalid_password_error_message);
+		throw std::invalid_argument(INVALID_PASSWORD_MSG);
 	}
 	else
 	{
@@ -37,25 +37,25 @@ static std::string Server::parse_password(const std::string &password_str)
 	}
 }
 
-static size_t Server::parse_port(const std::string &port_str)
+size_t Server::parse_port(const std::string &port_str)
 {
 	if (port_str.length() == 0 || port_str.length() > 5)
 	{
-		throw std::invalid_argument(this.invalid_port_error_message);
+		throw std::invalid_argument(INVALID_PORT_MSG);
 	}
 
 	for (size_t i = 0; i < port_str.length(); i++)
 	{
 		if (!isdigit(static_cast<unsigned char>(port_str[i])))
 		{
-			throw std::invalid_argument(this.invalid_port_error_message);
+			throw std::invalid_argument(INVALID_PORT_MSG);
 		}
 	}
 
 	int port_nbr = std::stoi(port_str);
 	if (port_nbr < 1 || port_nbr > 65535)
 	{
-		throw std::invalid_argument(this.invalid_port_error_message);
+		throw std::invalid_argument(INVALID_PORT_MSG);
 	}
 	else 
 	{

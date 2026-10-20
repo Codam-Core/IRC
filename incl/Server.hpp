@@ -11,12 +11,13 @@ class Server
 		const size_t _port;
 		const std::string _password;
 		
-		std::string invalid_port_error_message = "Invalid port; Give a number between 1 and 65535.";
-		std::string invalid_password_error_message = "Password can not be empty.";
+		static constexpr const char *INVALID_PORT_MSG = "Invalid port; Give a port number between 1 and 65535.";
+		static constexpr const char *INVALID_PASSWORD_MSG = "Invalid Password; Password can not be empty.";
 		
 		// Member functions
-		std::string parse_password(const std::string &password_str);
-		size_t parse_port(const std::string &port_str);
+		static std::string parse_password(const std::string &password_str);
+		static size_t parse_port(const std::string &port_str);
+
 
 	public:
 		// Constructors

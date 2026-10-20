@@ -3,11 +3,13 @@
 #include <string>
 #include "Server.hpp"
 
+static constexpr const char *PROGRAM_USAGE_MSG = "Run this program as follows: ./ircserv <port> <password>";
+
 int main(int argc, char **argv)
 {
 	if (argc != 3)
 	{
-		std::cerr << "Run this program as follows: ./ircserv <port> <password>" << std::endl;
+		std::cerr << PROGRAM_USAGE_MSG << std::endl;
 		return (EXIT_FAILURE);
 	}
 
@@ -18,8 +20,14 @@ int main(int argc, char **argv)
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "An error occurred: " << e.what() << std::endl;
-		std::cerr << "Run this program as follows: ./ircserv <port> <password>" << std::endl;
+		if (!e.what())
+		{
+			std::cerr << PROGRAM_USAGE_MSG << std::endl;
+		}
+		else
+		{
+			std::cerr << "An error occurred: " << e.what() << std::endl;
+		}
 		return (EXIT_FAILURE);
 	}
 
