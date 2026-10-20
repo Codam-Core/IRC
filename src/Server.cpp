@@ -29,7 +29,7 @@ static std::string Server::parse_password(const std::string &password_str)
 {
 	if (password_str == "")
 	{
-		throw std::invalid_argument("Password can not be empty.");
+		throw std::invalid_argument(this.invalid_password_error_message);
 	}
 	else
 	{
@@ -39,25 +39,23 @@ static std::string Server::parse_password(const std::string &password_str)
 
 static size_t Server::parse_port(const std::string &port_str)
 {
-	std::string error_message = "Invalid port; Give a number between 1 and 65535.";
-
 	if (port_str.length() == 0 || port_str.length() > 5)
 	{
-		throw std::invalid_argument(error_message);
+		throw std::invalid_argument(this.invalid_port_error_message);
 	}
 
 	for (size_t i = 0; i < port_str.length(); i++)
 	{
 		if (!isdigit(static_cast<unsigned char>(port_str[i])))
 		{
-			throw std::invalid_argument(error_message);
+			throw std::invalid_argument(this.invalid_port_error_message);
 		}
 	}
 
 	int port_nbr = std::stoi(port_str);
 	if (port_nbr < 1 || port_nbr > 65535)
 	{
-		throw std::invalid_argument(error_message);
+		throw std::invalid_argument(this.invalid_port_error_message);
 	}
 	else 
 	{
@@ -72,11 +70,5 @@ std::ostream& operator<<(std::ostream& output_stream, const Server& src)
 	output_stream << "parsed password = " << src.get_password() << std::endl;
 
 	return (output_stream);
-}
-
-// Exceptions
-const char* ExceptionName::what() const noexcept
-{
-	return ("*Exception info here*");
 }
 

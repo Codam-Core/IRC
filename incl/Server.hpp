@@ -7,9 +7,12 @@
 class Server
 {
 	private:
-		// Member variables
+	// Member variables
 		const size_t _port;
 		const std::string _password;
+		
+		std::string invalid_port_error_message = "Invalid port; Give a number between 1 and 65535.";
+		std::string invalid_password_error_message = "Password can not be empty.";
 		
 		// Member functions
 		std::string parse_password(const std::string &password_str);
@@ -33,10 +36,3 @@ class Server
 };
 
 std::ostream& operator<<(std::ostream &output_stream, const Server& src);
-
-// Exceptions
-class ExceptionName : public std::exception
-{
-	const char* what() const noexcept override;
-};
-
