@@ -18,7 +18,6 @@ Server::~Server(void)
 }
 
 // Getters and Setters
-
 size_t Server::get_port() const
 {
 	return (_port);
@@ -73,7 +72,6 @@ size_t Server::parse_port(const std::string &port_str)
 	}
 }
 
-
 void Server::create_socket()
 {
 	_socket_fd = socket(AF_INET, SOCK_STREAM, 0); // uses IPv4 and TCP
@@ -83,8 +81,11 @@ void Server::create_socket()
 	int optval = 1;
 	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
 		throw std::runtime_error(std::string(FAILED_TO_SET_SOCKET_OPTION_MSG) + std::strerror(errno));
-}
 
+	if (fcntl(_socket_fd, F_SETFL, O_NONBLOCK) == -1)
+		throw std::runtime_error(std::string(FAILED_TO_SET_NONBLOCKING_MSG) + std::strerror(errno));
+
+}
 
 // Operators, 
 std::ostream& operator<<(std::ostream& output_stream, const Server& src)
