@@ -16,7 +16,9 @@ int main(int argc, char **argv)
 	try
 	{
 		Server server(argv[1], argv[2]);
-		std::cout << server << std::endl;
+		server.create_socket();
+
+		std::cout << server;
 	}
 	catch (const std::exception &e)
 	{

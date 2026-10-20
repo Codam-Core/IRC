@@ -1,15 +1,20 @@
 #include "Server.hpp"
+#include "colours.hpp"
+
 
 // Constructor
-Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password))
+Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _socket_fd(-1)
 {
-	std::cout << "Server parameterized constructor is called" << std::endl;
+	std::cout << colour::BLUE << "Server parameterized constructor is called" << colour::RESET << std::endl;
 }
 
 // Destructor
 Server::~Server(void)
 {
-	std::cout << "Server destructor is called" << std::endl;
+	if (_socket_fd != -1)
+		close(_socket_fd);
+
+	std::cout << colour::BLUE << "Server destructor is called" << colour::RESET << std::endl;
 }
 
 // Getters and Setters
@@ -22,6 +27,11 @@ size_t Server::get_port() const
 std::string Server::get_password() const
 {
 	return (_password);
+}
+
+int Server::get_socket_fd() const
+{
+	return (_socket_fd);
 }
 
 // Member functions
@@ -63,12 +73,25 @@ size_t Server::parse_port(const std::string &port_str)
 	}
 }
 
-// Operators
+
+void Server::create_socket()
+{
+	_socket_fd = socket(AF_INET, SOCK_STREAM, 0); // uses IPv4 and TCP
+	if (_socket_fd == -1)
+		throw std::runtime_error(std::string(FAILED_TO_CREATE_SOCKET_MSG) + std::strerror(errno));
+
+	int optval = 1;
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+		throw std::runtime_error(std::string(FAILED_TO_SET_SOCKET_OPTION_MSG) + std::strerror(errno));
+}
+
+
+// Operators, 
 std::ostream& operator<<(std::ostream& output_stream, const Server& src)
 {
 	output_stream << "parsed port = " << src.get_port() << std::endl;
 	output_stream << "parsed password = " << src.get_password() << std::endl;
+	output_stream << "socket fd = " << src.get_socket_fd() << std::endl;
 
 	return (output_stream);
 }
-
