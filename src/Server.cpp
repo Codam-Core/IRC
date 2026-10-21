@@ -79,8 +79,8 @@ void Server::create_socket() // with comments because this shit is hard to remem
 		throw std::runtime_error(std::string(FAILED_TO_CREATE_SOCKET_MSG) + std::strerror(errno));
 
 	int optval = 1;
-	// if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1) // turn on SO_REUSEADDR so when server stops we can restart right away (instead of waiting 1 minute)
-	// 	throw std::runtime_error(std::string(FAILED_TO_SET_SOCKET_OPTION_MSG) + std::strerror(errno));
+	if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1) // turn on SO_REUSEADDR so when server stops we can restart right away (instead of waiting 1 minute)
+		throw std::runtime_error(std::string(FAILED_TO_SET_SOCKET_OPTION_MSG) + std::strerror(errno));
 
 	if (fcntl(_socket_fd, F_SETFL, O_NONBLOCK) == -1) // make socket non-blocking
 		throw std::runtime_error(std::string(FAILED_TO_SET_NONBLOCKING_MSG) + std::strerror(errno));
