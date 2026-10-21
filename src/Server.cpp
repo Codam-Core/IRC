@@ -85,14 +85,16 @@ void Server::create_socket()
 	if (fcntl(_socket_fd, F_SETFL, O_NONBLOCK) == -1)
 		throw std::runtime_error(std::string(FAILED_TO_SET_NONBLOCKING_MSG) + std::strerror(errno));
 
-	sockaddr_in sin = {};
-	sin.sin_family = AF_INET;
-  	sin.sin_addr.s_addr = INADDR_ANY;
-  	sin.sin_port = htons(_port);
+	sockaddr_in server_addr = {};
+	server_addr.sin_family = AF_INET;
+  	server_addr.sin_addr.s_addr = INADDR_ANY;
+  	server_addr.sin_port = htons(_port);
 
-	if (bind(_socket_fd, reinterpret_cast<sockaddr *>(&sin.sin_addr.s_addr), sizeof(sin)) == -1)
+	if (bind(_socket_fd, reinterpret_cast<sockaddr *>(&server_addr.sin_addr.s_addr), sizeof(server_addr)) == -1)
 		throw std::runtime_error(std::string(FAILED_TO_BIND_SOCKET_MSG) + std::to_string(_port) + ": " + std::strerror(errno));
 
+	if (listen(_socket_fd, SOMAXCONN) == -1)
+		throw std::runtime_error(std::string(FAILED_TO_LISTEN_MSG) + std::strerror(errno));
 
 
 }
