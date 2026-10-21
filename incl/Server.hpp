@@ -8,6 +8,7 @@
 #include <cerrno>
 #include <stdexcept>
 #include <fcntl.h>
+#include <netinet/in.h>
 
 class Server
 {
@@ -24,7 +25,7 @@ class Server
 		static constexpr const char *FAILED_TO_CREATE_SOCKET_MSG = "Failed to create socket: ";
 		static constexpr const char *FAILED_TO_SET_SOCKET_OPTION_MSG = "Failed to set socket options: ";
 		static constexpr const char *FAILED_TO_SET_NONBLOCKING_MSG = "Failed to set socket to non-blocking: ";
-		static constexpr const char *FAILED_TO_BIND_SOCKET_MSG = "Failed to bind socket on port [port, put in throw message]";
+		static constexpr const char *FAILED_TO_BIND_SOCKET_MSG = "Failed to bind socket on port ";
 		static constexpr const char *FAILED_TO_LISTEN_MSG = "Failed to listen on socket: ";
 
 		// Private member functions

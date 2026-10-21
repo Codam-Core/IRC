@@ -85,6 +85,16 @@ void Server::create_socket()
 	if (fcntl(_socket_fd, F_SETFL, O_NONBLOCK) == -1)
 		throw std::runtime_error(std::string(FAILED_TO_SET_NONBLOCKING_MSG) + std::strerror(errno));
 
+	sockaddr_in sin = {};
+	sin.sin_family = AF_INET;
+  	sin.sin_addr.s_addr = INADDR_ANY;
+  	sin.sin_port = htons(_port);
+
+	if (bind(_socket_fd, reinterpret_cast<sockaddr *>(&sin.sin_addr.s_addr), sizeof(sin)) == -1)
+		throw std::runtime_error(std::string(FAILED_TO_BIND_SOCKET_MSG) + std::to_string(_port) + ": " + std::strerror(errno));
+
+
+
 }
 
 // Operators, 
