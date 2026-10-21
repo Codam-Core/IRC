@@ -11,7 +11,7 @@ OBJ_DIR		:= obj
 INCL		:=	colours.hpp \
 				Server.hpp \
 				Fd.hpp
-				
+
 SRCS		:=	main.cpp \
 				Server.cpp \
 				Fd.cpp
@@ -47,5 +47,8 @@ re: fclean all
 # Compile and run the program
 run: all
 	./$(NAME) 6667 secret
+
+vrun: all
+	valgrind --track-fds=yes ./$(NAME) 6667 secret
 
 .PHONY: all clean fclean re run
