@@ -8,10 +8,14 @@ SRC_DIR		:= src
 INCL_DIR	:= incl
 OBJ_DIR		:= obj
 
-SRCS		:=	main.cpp \
-				Server.cpp
 INCL		:=	colours.hpp \
-				Server.hpp
+				Server.hpp \
+				Fd.hpp
+				
+SRCS		:=	main.cpp \
+				Server.cpp \
+				Fd.cpp
+
 
 # Add the folder to every file name
 OBJS		:= $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
