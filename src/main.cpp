@@ -18,6 +18,8 @@ int main(int argc, char **argv)
 		Server server(argv[1], argv[2]);
 		server.create_socket();
 
+		// sleep(60);
+
 		std::cout << server;
 	}
 	catch (const std::exception &e)
@@ -32,6 +34,5 @@ int main(int argc, char **argv)
 		}
 		return (EXIT_FAILURE);
 	}
-
 	return (EXIT_SUCCESS);
 }

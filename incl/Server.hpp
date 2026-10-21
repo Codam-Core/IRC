@@ -9,12 +9,15 @@
 #include <stdexcept>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <cctype>
+#include <cstdlib>
+#include <cstdint>
 
 class Server
 {
 	private:
 		// Member variables
-		const size_t _port;
+		const uint16_t _port; // a port has room for exactly 16 bits, hence the type uint16_t
 		const std::string _password;
 
 		int _socket_fd;
@@ -30,7 +33,7 @@ class Server
 
 		// Private member functions
 		static std::string parse_password(const std::string &password_str);
-		static size_t parse_port(const std::string &port_str);
+		static uint16_t parse_port(const std::string &port_str);
 
 
 	public:
@@ -46,7 +49,7 @@ class Server
 		Server &operator=(const Server& other) = delete;
 
 		// Getters and Setters
-		size_t get_port() const;
+		uint16_t get_port() const;
 		std::string get_password() const;
 		int get_socket_fd() const;
 
