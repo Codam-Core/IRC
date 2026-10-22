@@ -86,18 +86,21 @@ void Server::run()
 	{
 		int event_count = epoll_wait(_epoll_fd.get_fd(), event_array, MAX_EVENTS, -1);
 		if (event_count == -1)
-			throw std::runtime_error(std::string(FAILED_EPOLL_WAIT_MSG) + std::strerror(errno));
+			throw std::runtime_error(std::string(FAILED_TO_WAIT_FOR_EPOLL_MSG) + std::strerror(errno));
 
 		for (int i = 0; i < event_count; i++)
 		{
 			if (event_array[i].data.fd == _listeningSocket.get_fd())
 			{
-				Fd client_fd(_listeningSocket.accept_client());
-				
-				if (client_fd.get_fd() == -1)
-					std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << " client could not be accepted : " << std::strerror(errno) << std::endl;
-				else
-					std::cout << colour::MAGENTA << "[Server] " << colour::RESET << " accepted new client with fd " << client_fd.get_fd() << std::endl;
+				try
+				{
+					Fd client_fd(_listeningSocket.accept_client());
+					std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd.get_fd() << std::endl;
+				}
+				catch (const std::exception &e) // one failed client must not stop the server
+				{
+					std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << e.what() << std::endl;
+				}
 			}
 		}
 	}

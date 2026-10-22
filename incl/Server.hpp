@@ -22,8 +22,8 @@ class Server
 
 		static constexpr const char *FAILED_TO_CREATE_EPOLL_MSG = "Failed to create epoll: ";
 		static constexpr const char *FAILED_TO_ADD_FD_TO_EPOLL_MSG = "Failed to add fd to epoll: ";
-		static constexpr const char *FAILED_EPOLL_WAIT_MSG = "Failed epoll wait function: ";
-	
+		static constexpr const char *FAILED_TO_WAIT_FOR_EPOLL_MSG = "Failed to wait for epoll events: ";
+
 		// Private member functions
 		static std::string parse_password(const std::string &password_str);
 		static uint16_t parse_port(const std::string &port_str);
