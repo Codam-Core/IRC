@@ -19,7 +19,7 @@ class Server
 		static constexpr const char *INVALID_PASSWORD_MSG = "Invalid Password: Password can not be empty.";
 
 		static constexpr const char *FAILED_TO_CREATE_EPOLL_MSG = "Failed to create epoll: ";
-
+		static constexpr const char *FAILED_TO_ADD_CLIENT_TO_EPOLL_MSG = "Failed to connect client to epoll: ";
 		// Private member functions
 		static std::string parse_password(const std::string &password_str);
 		static uint16_t parse_port(const std::string &port_str);

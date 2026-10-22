@@ -3,10 +3,22 @@
 // Constructor
 Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port), _epoll_fd(epoll_create1(0))
 {
+	
 	if (_epoll_fd.get_fd() == -1)
 		throw std::runtime_error(std::string(FAILED_TO_CREATE_EPOLL_MSG) + std::strerror(errno));
-
+	
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "constructor called: port " << _port << ", password: " << _password << std::endl;
+
+	epoll_event listen_event = {};
+	listen_event.events = EPOLLIN; // tells the server (?) that a new client is waiting, there is something new to read!
+	listen_event.data.fd = _listeningSocket.get_fd();
+	
+	if (epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_ADD, listen_event.data.fd, &listen_event) == -1)
+		throw std::runtime_error(std::string(FAILED_TO_ADD_CLIENT_TO_EPOLL_MSG) + std::strerror(errno));
+
+	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "added listening fd " << _listeningSocket.get_fd() <<  " to epoll fd " << _epoll_fd.get_fd() << "." << std::endl;
+
+
 }
 
 // Destructor
