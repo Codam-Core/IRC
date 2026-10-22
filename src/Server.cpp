@@ -68,7 +68,7 @@ uint16_t Server::parse_port(const std::string &port_str)
 	}
 	else 
 	{
-		return ((uint16_t)port_nbr);
+		return (static_cast<uint16_t>(port_nbr));
 	}
 }
 
