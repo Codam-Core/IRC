@@ -1,6 +1,4 @@
 #include "Server.hpp"
-#include "Fd.hpp"
-#include "ListeningSocket.hpp"
 
 static constexpr const char *PROGRAM_USAGE_MSG = "Run this program as follows: ./ircserv <port> <password>";
 

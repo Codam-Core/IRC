@@ -10,11 +10,11 @@ Server::Server(const std::string &port, const std::string &password) : _port(par
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "constructor called: port " << _port << ", password: " << _password << std::endl;
 
 	epoll_event listen_event = {};
-	listen_event.events = EPOLLIN; // tells the server (?) that a new client is waiting, there is something new to read!
+	listen_event.events = EPOLLIN; // tells the server that a new client is waiting, there is something new to read!
 	listen_event.data.fd = _listeningSocket.get_fd();
 	
 	if (epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_ADD, listen_event.data.fd, &listen_event) == -1)
-		throw std::runtime_error(std::string(FAILED_TO_ADD_CLIENT_TO_EPOLL_MSG) + std::strerror(errno));
+		throw std::runtime_error(std::string(FAILED_TO_ADD_FD_TO_EPOLL_MSG) + std::strerror(errno));
 
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "added listening fd " << _listeningSocket.get_fd() <<  " to epoll fd " << _epoll_fd.get_fd() << "." << std::endl;
 
@@ -80,20 +80,25 @@ uint16_t Server::parse_port(const std::string &port_str)
 // Public member functions
 void Server::run()
 {
-	epoll_event listen_event_array[MAX_EVENTS];
+	epoll_event event_array[MAX_EVENTS];
 
 	while (true)
 	{
-		int events = epoll_wait(_epoll_fd.get_fd(), listen_event_array, MAX_EVENTS, -1);
-		if (events == -1)
+		int event_count = epoll_wait(_epoll_fd.get_fd(), event_array, MAX_EVENTS, -1);
+		if (event_count == -1)
 			throw std::runtime_error(std::string(FAILED_EPOLL_WAIT_MSG) + std::strerror(errno));
 
-		for (int i = 0; i < events; i++)
+		for (int i = 0; i < event_count; i++)
 		{
-			if (listen_event_array[i].data.fd == _listeningSocket.get_fd())
-				std::cout << colour::MAGENTA << "[Server] " << colour::RESET << " new client is waiting" << std::endl;
-		
+			if (event_array[i].data.fd == _listeningSocket.get_fd())
+			{
+				Fd client_fd(_listeningSocket.accept_client());
+				
+				if (client_fd.get_fd() == -1)
+					std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << " client could not be accepted : " << std::strerror(errno) << std::endl;
+				else
+					std::cout << colour::MAGENTA << "[Server] " << colour::RESET << " accepted new client with fd " << client_fd.get_fd() << std::endl;
+			}
 		}
 	}
-
 }

@@ -33,4 +33,5 @@ class ListeningSocket
 		int get_fd() const ;
 
 		// Member functions
+		Fd accept_client();
 };

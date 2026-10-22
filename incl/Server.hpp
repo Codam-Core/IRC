@@ -21,7 +21,7 @@ class Server
 		static constexpr const char *INVALID_PASSWORD_MSG = "Invalid Password: Password can not be empty.";
 
 		static constexpr const char *FAILED_TO_CREATE_EPOLL_MSG = "Failed to create epoll: ";
-		static constexpr const char *FAILED_TO_ADD_CLIENT_TO_EPOLL_MSG = "Failed to connect client to epoll: ";
+		static constexpr const char *FAILED_TO_ADD_FD_TO_EPOLL_MSG = "Failed to add fd to epoll: ";
 		static constexpr const char *FAILED_EPOLL_WAIT_MSG = "Failed epoll wait function: ";
 	
 		// Private member functions

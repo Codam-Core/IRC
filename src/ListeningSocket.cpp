@@ -40,4 +40,9 @@ int ListeningSocket::get_fd() const
 }
 
 // Member functions
-
+Fd ListeningSocket::accept_client()
+{
+	Fd accepted_client_fd(accept(_fd.get_fd() , nullptr, nullptr));
+	
+	return (accepted_client_fd);
+}
