@@ -39,3 +39,6 @@ namespace colour
 	inline constexpr const char *BG_BLUE		= "\033[44m";
 	inline constexpr const char *BG_GRAY		= "\033[100m";
 }
+
+
+// usage:	colour::GREEN
