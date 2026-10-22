@@ -17,25 +17,12 @@ int main(int argc, char **argv)
 	{
 		// testing classes
 		Server server(argv[1], argv[2]);
-		std::cout << server << std::endl;
+		server.create_socket();
 
-		// Fd my_fd(socket(AF_INET, SOCK_STREAM, 0));
-		// // std::cout << "my_fd: " << my_fd << std::endl;
-
-		// Fd other_fd(std::move(my_fd));
-
-		// std::cout << "OG fd: " << my_fd << std::endl;
-		// std::cout << "moved fd: " << other_fd << std::endl;
-
-		Fd a(socket(AF_INET, SOCK_STREAM, 0));   // fd 3
-		std::cout << "fd a: " << a << std::endl;
-
-		Fd b(socket(AF_INET, SOCK_STREAM, 0));   // fd 4
-		std::cout << "fd b: " << b << std::endl;
-
-		a = std::move(b);
-		std::cout << "fd a: " << a << std::endl;
-		std::cout << "fd b: " << b << std::endl;
+		Fd a(socket(AF_INET, SOCK_STREAM, 0));
+		Fd b(std::move(a));        // move constructor
+		Fd c(socket(AF_INET, SOCK_STREAM, 0));
+		c = std::move(b);          // move assignment
 
 	}
 	catch (const std::exception &e)

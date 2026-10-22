@@ -28,5 +28,3 @@ class Fd
 		// Getters and Setters
 		int get_fd() const ;
 };
-
-std::ostream& operator<<(std::ostream &output_stream, const Fd& src);

@@ -56,5 +56,3 @@ class Server
 		// Public member functions
 		void create_socket();
 };
-
-std::ostream& operator<<(std::ostream &output_stream, const Server& src);
