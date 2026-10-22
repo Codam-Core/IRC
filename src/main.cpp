@@ -16,6 +16,7 @@ int main(int argc, char **argv)
 	{
 		Server server(argv[1], argv[2]);
 		// sleep(50);
+		server.run();
 	}
 	catch (const std::exception &e)
 	{

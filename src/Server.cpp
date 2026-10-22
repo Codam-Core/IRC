@@ -38,7 +38,7 @@ std::string Server::get_password() const
 	return (_password);
 }
 
-// Member functions
+// Private member functions
 std::string Server::parse_password(const std::string &password_str)
 {
 	if (password_str == "")
@@ -75,4 +75,25 @@ uint16_t Server::parse_port(const std::string &port_str)
 	{
 		return (static_cast<uint16_t>(port_nbr));
 	}
+}
+
+// Public member functions
+void Server::run()
+{
+	epoll_event listen_event_array[MAX_EVENTS];
+
+	while (true)
+	{
+		int events = epoll_wait(_epoll_fd.get_fd(), listen_event_array, MAX_EVENTS, -1);
+		if (events == -1)
+			throw std::runtime_error(std::string(FAILED_EPOLL_WAIT_MSG) + std::strerror(errno));
+
+		for (int i = 0; i < events; i++)
+		{
+			if (listen_event_array[i].data.fd == _listeningSocket.get_fd())
+				std::cout << colour::MAGENTA << "[Server] " << colour::RESET << " new client is waiting" << std::endl;
+		
+		}
+	}
+
 }

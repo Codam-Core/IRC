@@ -8,11 +8,13 @@ class Server
 {
 	private:
 		// Member variables
-		const uint16_t 		_port; // a port has room for exactly 16 bits, hence the type uint16_t
-		const std::string 	_password;
+		const uint16_t 			_port; // a port has room for exactly 16 bits, hence the type uint16_t
+		const std::string 		_password;
 
-		ListeningSocket 	_listeningSocket;
-		Fd 					_epoll_fd;
+		ListeningSocket 		_listeningSocket;
+		Fd 						_epoll_fd;
+
+		static constexpr int	MAX_EVENTS = 64;
 
 		// Error messages
 		static constexpr const char *INVALID_PORT_MSG = "Invalid port: Give a port number between 1 and 65535.";
@@ -20,6 +22,8 @@ class Server
 
 		static constexpr const char *FAILED_TO_CREATE_EPOLL_MSG = "Failed to create epoll: ";
 		static constexpr const char *FAILED_TO_ADD_CLIENT_TO_EPOLL_MSG = "Failed to connect client to epoll: ";
+		static constexpr const char *FAILED_EPOLL_WAIT_MSG = "Failed epoll wait function: ";
+	
 		// Private member functions
 		static std::string parse_password(const std::string &password_str);
 		static uint16_t parse_port(const std::string &port_str);
@@ -41,4 +45,5 @@ class Server
 		std::string get_password() const;
 
 		// Public member functions
+		void run();
 };
