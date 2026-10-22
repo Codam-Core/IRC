@@ -8,14 +8,17 @@ class Server
 {
 	private:
 		// Member variables
-		const uint16_t _port; // a port has room for exactly 16 bits, hence the type uint16_t
-		const std::string _password;
+		const uint16_t 		_port; // a port has room for exactly 16 bits, hence the type uint16_t
+		const std::string 	_password;
 
-		ListeningSocket _listeningSocket;
+		ListeningSocket 	_listeningSocket;
+		Fd 					_epoll_fd;
 
 		// Error messages
 		static constexpr const char *INVALID_PORT_MSG = "Invalid port: Give a port number between 1 and 65535.";
 		static constexpr const char *INVALID_PASSWORD_MSG = "Invalid Password: Password can not be empty.";
+
+		static constexpr const char *FAILED_TO_CREATE_EPOLL_MSG = "Failed to create epoll: ";
 
 		// Private member functions
 		static std::string parse_password(const std::string &password_str);

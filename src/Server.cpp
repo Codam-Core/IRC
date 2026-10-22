@@ -1,8 +1,11 @@
 #include "Server.hpp"
 
 // Constructor
-Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port)
+Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port), _epoll_fd(epoll_create1(0))
 {
+	if (_epoll_fd.get_fd() == -1)
+		throw std::runtime_error(std::string(FAILED_TO_CREATE_EPOLL_MSG) + std::strerror(errno));
+
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "constructor called: port " << _port << ", password: " << _password << std::endl;
 }
 
