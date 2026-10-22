@@ -1,23 +1,7 @@
-
 #include <iostream>
 #include <string>
 #include "Server.hpp"
 #include "Fd.hpp"
-
-
-// -------- includes from server.hpp, not merged yet -----------
-#include <sys/socket.h>
-#include <unistd.h>
-#include <cstring>
-#include <cerrno>
-#include <stdexcept>
-#include <fcntl.h>
-#include <netinet/in.h>
-#include <cctype>
-#include <cstdlib>
-#include <cstdint>
-// ----------------
-
 
 static constexpr const char *PROGRAM_USAGE_MSG = "Run this program as follows: ./ircserv <port> <password>";
 

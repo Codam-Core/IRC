@@ -12,7 +12,7 @@ class Fd
 
 	public:
 		// Constructors
-		Fd(void);
+		Fd(void) = delete;
 		explicit Fd(int fd); // explicit is very important here, because it stops an int from silently turning into a temporary Fd, whose destructor would close() that fd
 		
 		Fd(const Fd& other) = delete;

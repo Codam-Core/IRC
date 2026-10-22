@@ -1,11 +1,6 @@
 #include "Fd.hpp"
 
 // Constructors
-Fd::Fd(void) : _fd(-1)
-{
-	std::cout << colour::BLUE << "Fd default constructor is called" << colour::RESET << std::endl;
-}
-
 Fd::Fd(int fd) : _fd(fd)
 {
 	std::cout << colour::BLUE << "Fd parameterized constructor is called" << colour::RESET << std::endl;
@@ -39,7 +34,7 @@ Fd& Fd::operator=(Fd&& other) noexcept
 	if (this != &other)
 	{
 		if (this->_fd != -1)
-			close(_fd);
+			close(this->_fd);
 		this->_fd = other._fd;
 		other._fd = -1;
 		std::cout << colour::BLUE << "Fd move assignment is called" << colour::RESET << std::endl;
