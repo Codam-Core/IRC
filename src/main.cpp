@@ -1,7 +1,6 @@
-#include <iostream>
-#include <string>
 #include "Server.hpp"
 #include "Fd.hpp"
+#include "ListeningSocket.hpp"
 
 static constexpr const char *PROGRAM_USAGE_MSG = "Run this program as follows: ./ircserv <port> <password>";
 
@@ -15,15 +14,8 @@ int main(int argc, char **argv)
 
 	try
 	{
-		// testing classes
 		Server server(argv[1], argv[2]);
-		server.create_socket();
-
-		Fd a(socket(AF_INET, SOCK_STREAM, 0));
-		Fd b(std::move(a));        // move constructor
-		Fd c(socket(AF_INET, SOCK_STREAM, 0));
-		c = std::move(b);          // move assignment
-
+		sleep(50);
 	}
 	catch (const std::exception &e)
 	{
