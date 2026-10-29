@@ -3,18 +3,21 @@
 #include "includes.hpp"
 #include "colours.hpp"
 #include "ListeningSocket.hpp"
+#include "ConnectedSocket.hpp"
 
 class Server
 {
 	private:
 		// Member variables
-		const uint16_t 			_port; // a port has room for exactly 16 bits, hence the type uint16_t
-		const std::string 		_password;
+		const uint16_t 					_port; // a port has room for exactly 16 bits, hence the type uint16_t
+		const std::string 				_password;
 
-		ListeningSocket 		_listeningSocket;
-		Fd 						_epoll_fd;
+		ListeningSocket 				_listeningSocket;
+		Fd 								_epoll_fd;
+		
+		std::map<int, ConnectedSocket>	_clients; // key = client's fd
 
-		static constexpr int	MAX_EVENTS = 64;
+		static constexpr int			MAX_EVENTS = 64;
 
 		// Error messages
 		static constexpr const char *INVALID_PORT_MSG = "Invalid port: Give a port number between 1 and 65535.";

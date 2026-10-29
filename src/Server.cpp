@@ -86,17 +86,45 @@ void Server::update()
 
 	for (int i = 0; i < event_count; i++)
 	{
-		if (event_array[i].data.fd == _listeningSocket.get_fd())
+		if (event_array[i].data.fd == _listeningSocket.get_fd()) // the listening socket is ready → a NEW client is knocking: accept it, keep it, and add it to epoll
 		{
 			try
 			{
-				Fd client_fd(_listeningSocket.accept_client());
-				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd.get_fd() << std::endl;
+				ConnectedSocket client(_listeningSocket.accept_client());
+				int client_fd = client.get_fd();
+
+				epoll_event client_event = {};
+				client_event.events = EPOLLIN;
+				client_event.data.fd = client_fd;
+				if (epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_ADD, client_fd, &client_event) == -1)
+					throw std::runtime_error(std::string(FAILED_TO_ADD_FD_TO_EPOLL_MSG) + std::strerror(errno));
+
+				_clients.emplace(client_fd, std::move(client));
+				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd << std::endl;
 			}
-			catch (const std::exception &e) // one failed client must not stop the server
+			catch (const std::exception &e)
 			{
 				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << e.what() << std::endl;
 			}
 		}
+		else // any other fd is an EXISTING client that is ready → it sent us data (or it hung up): read it
+		{
+			int fd = event_array[i].data.fd;
+			auto it = _clients.find(fd);
+			if (it == _clients.end())
+				continue;
+
+			char buffer[512];
+			ssize_t bytes = it->second.recv_data(buffer, sizeof(buffer));
+			if (bytes <= 0)
+			{
+				epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_DEL, fd, nullptr);
+				_clients.erase(it);
+				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
+			}
+			else
+				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << std::string(buffer, bytes);
+		}
+
 	}
 }
