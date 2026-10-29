@@ -40,4 +40,11 @@ int ListeningSocket::get_fd() const
 }
 
 // Member functions
+Fd ListeningSocket::accept_client()
+{
+	int client_fd = accept(_fd.get_fd(), nullptr, nullptr);
+	if (client_fd == -1) // read errno right away, before anything else can change it
+		throw std::runtime_error(std::string(FAILED_TO_ACCEPT_MSG) + std::strerror(errno));
 
+	return (Fd(client_fd)); // only a valid fd gets wrapped in an Fd
+}

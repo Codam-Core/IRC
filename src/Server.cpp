@@ -1,9 +1,23 @@
 #include "Server.hpp"
 
 // Constructor
-Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port)
+Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port), _epoll_fd(epoll_create1(0))
 {
+	
+	if (_epoll_fd.get_fd() == -1)
+		throw std::runtime_error(std::string(FAILED_TO_CREATE_EPOLL_MSG) + std::strerror(errno));
+	
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "constructor called: port " << _port << ", password: " << _password << std::endl;
+
+	epoll_event listen_event = {};
+	listen_event.events = EPOLLIN; // tells the server that a new client is waiting, there is something new to read!
+	listen_event.data.fd = _listeningSocket.get_fd();
+	
+	if (epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_ADD, listen_event.data.fd, &listen_event) == -1)
+		throw std::runtime_error(std::string(FAILED_TO_ADD_FD_TO_EPOLL_MSG) + std::strerror(errno));
+
+	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "added listening fd " << _listeningSocket.get_fd() <<  " to epoll fd " << _epoll_fd.get_fd() << "." << std::endl;
+
 }
 
 // Destructor
@@ -23,7 +37,7 @@ std::string Server::get_password() const
 	return (_password);
 }
 
-// Member functions
+// Private member functions
 std::string Server::parse_password(const std::string &password_str)
 {
 	if (password_str == "")
@@ -59,5 +73,30 @@ uint16_t Server::parse_port(const std::string &port_str)
 	else 
 	{
 		return (static_cast<uint16_t>(port_nbr));
+	}
+}
+
+// Public member functions
+void Server::update()
+{
+	epoll_event event_array[MAX_EVENTS];
+	int event_count = epoll_wait(_epoll_fd.get_fd(), event_array, MAX_EVENTS, -1);
+	if (event_count == -1)
+		throw std::runtime_error(std::string(FAILED_TO_WAIT_FOR_EPOLL_MSG) + std::strerror(errno));
+
+	for (int i = 0; i < event_count; i++)
+	{
+		if (event_array[i].data.fd == _listeningSocket.get_fd())
+		{
+			try
+			{
+				Fd client_fd(_listeningSocket.accept_client());
+				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd.get_fd() << std::endl;
+			}
+			catch (const std::exception &e) // one failed client must not stop the server
+			{
+				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << e.what() << std::endl;
+			}
+		}
 	}
 }

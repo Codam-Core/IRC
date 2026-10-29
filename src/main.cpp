@@ -1,6 +1,4 @@
 #include "Server.hpp"
-#include "Fd.hpp"
-#include "ListeningSocket.hpp"
 
 static constexpr const char *PROGRAM_USAGE_MSG = "Run this program as follows: ./ircserv <port> <password>";
 
@@ -15,7 +13,12 @@ int main(int argc, char **argv)
 	try
 	{
 		Server server(argv[1], argv[2]);
-		sleep(50);
+		// sleep(50);
+
+		while(true)
+		{
+			server.update();
+		}
 	}
 	catch (const std::exception &e)
 	{
