@@ -1,6 +1,11 @@
 #include "Fd.hpp"
 
 // Constructors
+// Fd::Fd(void) : _fd(-1)
+// {
+// 	std::cerr << colour::BLUE << "[Fd] " << colour::RESET << "default constructor called: empty (fd -1)" << std::endl;
+// }
+
 Fd::Fd(int fd) : _fd(fd)
 {
 	std::cerr << colour::BLUE << "[Fd] " << colour::RESET << "constructor called: now owns fd " << _fd << std::endl;
