@@ -4,6 +4,7 @@
 #include "colours.hpp"
 #include "ListeningSocket.hpp"
 #include "ConnectedSocket.hpp"
+#include "Epoll.hpp"
 
 extern volatile sig_atomic_t g_stop; // defined in main.cpp, set by the signal handler
 
@@ -15,7 +16,7 @@ class Server
 		const std::string 				_password;
 
 		ListeningSocket 				_listeningSocket;
-		Fd 								_epoll_fd;
+		Epoll 							_epoll;
 		
 		std::map<int, ConnectedSocket>	_clients; // key = client's fd
 
@@ -25,8 +26,6 @@ class Server
 		static constexpr const char *INVALID_PORT_MSG = "Invalid port: Give a port number between 1 and 65535.";
 		static constexpr const char *INVALID_PASSWORD_MSG = "Invalid Password: Password can not be empty.";
 
-		static constexpr const char *FAILED_TO_CREATE_EPOLL_MSG = "Failed to create epoll: ";
-		static constexpr const char *FAILED_TO_ADD_FD_TO_EPOLL_MSG = "Failed to add fd to epoll: ";
 		static constexpr const char *FAILED_TO_WAIT_FOR_EPOLL_MSG = "Failed to wait for epoll events: ";
 
 		// Private member functions
