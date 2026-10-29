@@ -12,6 +12,21 @@ Channel::~Channel(void)
     std::cerr << colour::BLUE << "[Channel] " << colour::RESET << "destructor called: channel " << _name << " destroyed" << std::endl;
 }
 
+bool Channel::has_mode(modes mode) const
+{
+    return _mode & mode; // AND
+}
+
+void Channel::set_mode(modes mode)
+{
+    _mode |= mode; // OR
+}
+
+void Channel::unset_mode(modes mode)
+{
+    _mode &= ~mode; // AND NOT
+}
+
 int Channel::user_count() const
 {
     return (_users.size() + _operators.size());
@@ -49,8 +64,8 @@ std::string Channel::get_topic() const
 
 void Channel::set_topic(const User& user, const std::string& topic)
 {
-    // Check if the user is an operator of the channel
-    if (std::find(_operators.begin(), _operators.end(), user) == _operators.end())
+    // Check if the user is an operator of the channel only when topic lock has been set
+    if (has_mode(TOPIC_LOCK) && std::find(_operators.begin(), _operators.end(), user) == _operators.end())
         throw std::invalid_argument("User is not an operator of the channel");
 
     // If the user is an operator, set the topic
