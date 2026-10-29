@@ -38,6 +38,7 @@
 *.out
 *.app
 ircserv
+ircserv_test
 
 # Build directories
 build/
