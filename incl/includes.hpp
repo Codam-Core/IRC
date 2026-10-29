@@ -13,3 +13,5 @@
 #include <cstdlib>
 #include <cstdint>
 #include <sys/epoll.h>
+#include <map>
+#include <csignal>

@@ -13,7 +13,10 @@ class Fd
 		Fd(void) = delete;
 		explicit Fd(int fd); // explicit is very important here, because it stops an int from silently turning into a temporary Fd, whose destructor would close() that fd
 		
+		// Copy constructor
 		Fd(const Fd& other) = delete;
+
+		// Move constructor
 		Fd(Fd&& other) noexcept; // noexcept is important here, because otherwise vectors will try to copy it and thats not allowed!
 
 		// Destructor
