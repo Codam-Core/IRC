@@ -81,8 +81,14 @@ void Server::update()
 {
 	epoll_event event_array[MAX_EVENTS];
 	int event_count = epoll_wait(_epoll_fd.get_fd(), event_array, MAX_EVENTS, -1);
+
 	if (event_count == -1)
-		throw std::runtime_error(std::string(FAILED_TO_WAIT_FOR_EPOLL_MSG) + std::strerror(errno));
+	{
+		if (g_stop == 1)  // no error: we were woken up to stop
+			return ;
+		else // real error
+			throw std::runtime_error(std::string(FAILED_TO_WAIT_FOR_EPOLL_MSG) + std::strerror(errno));
+	}
 
 	for (int i = 0; i < event_count; i++)
 	{

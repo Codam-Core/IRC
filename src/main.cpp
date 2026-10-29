@@ -1,6 +1,14 @@
 #include "Server.hpp"
 
 static constexpr const char *PROGRAM_USAGE_MSG = "Run this program as follows: ./ircserv <port> <password>";
+volatile sig_atomic_t g_stop = 0;
+
+static void handle_signal(int signal)
+{
+	(void)signal;
+	g_stop = 1;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -13,9 +21,10 @@ int main(int argc, char **argv)
 	try
 	{
 		Server server(argv[1], argv[2]);
-		// sleep(50);
 
-		while(true)
+		signal(SIGINT, handle_signal);
+
+		while(g_stop == 0)
 		{
 			server.update();
 		}

@@ -5,6 +5,8 @@
 #include "ListeningSocket.hpp"
 #include "ConnectedSocket.hpp"
 
+extern volatile sig_atomic_t g_stop; // defined in main.cpp, set by the signal handler
+
 class Server
 {
 	private:
