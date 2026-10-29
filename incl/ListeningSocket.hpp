@@ -8,7 +8,7 @@ class ListeningSocket
 {
 	private:
 		// Member variables
-		Fd _fd;
+		Fd _ls_fd;
 
 		// Error messages
 		static constexpr const char *FAILED_TO_CREATE_SOCKET_MSG = "Failed to create socket: ";
