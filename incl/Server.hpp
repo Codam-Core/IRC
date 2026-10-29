@@ -45,5 +45,5 @@ class Server
 		std::string get_password() const;
 
 		// Public member functions
-		void run();
+		void update();
 };

@@ -18,7 +18,6 @@ Server::Server(const std::string &port, const std::string &password) : _port(par
 
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "added listening fd " << _listeningSocket.get_fd() <<  " to epoll fd " << _epoll_fd.get_fd() << "." << std::endl;
 
-
 }
 
 // Destructor
@@ -78,29 +77,25 @@ uint16_t Server::parse_port(const std::string &port_str)
 }
 
 // Public member functions
-void Server::run()
+void Server::update()
 {
 	epoll_event event_array[MAX_EVENTS];
+	int event_count = epoll_wait(_epoll_fd.get_fd(), event_array, MAX_EVENTS, -1);
+	if (event_count == -1)
+		throw std::runtime_error(std::string(FAILED_TO_WAIT_FOR_EPOLL_MSG) + std::strerror(errno));
 
-	while (true)
+	for (int i = 0; i < event_count; i++)
 	{
-		int event_count = epoll_wait(_epoll_fd.get_fd(), event_array, MAX_EVENTS, -1);
-		if (event_count == -1)
-			throw std::runtime_error(std::string(FAILED_TO_WAIT_FOR_EPOLL_MSG) + std::strerror(errno));
-
-		for (int i = 0; i < event_count; i++)
+		if (event_array[i].data.fd == _listeningSocket.get_fd())
 		{
-			if (event_array[i].data.fd == _listeningSocket.get_fd())
+			try
 			{
-				try
-				{
-					Fd client_fd(_listeningSocket.accept_client());
-					std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd.get_fd() << std::endl;
-				}
-				catch (const std::exception &e) // one failed client must not stop the server
-				{
-					std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << e.what() << std::endl;
-				}
+				Fd client_fd(_listeningSocket.accept_client());
+				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd.get_fd() << std::endl;
+			}
+			catch (const std::exception &e) // one failed client must not stop the server
+			{
+				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << e.what() << std::endl;
 			}
 		}
 	}
