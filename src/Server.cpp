@@ -113,12 +113,15 @@ void Server::update()
 			}
 			if (events & EPOLLIN)
 			{
-				char buffer[512];
-				ssize_t bytes = it->second.recv_data(buffer, sizeof(buffer));
+				ssize_t bytes = it->second.recv_data();
 				if (bytes <= 0)
 					disconnect_client(fd);
 				else
-					std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << std::string(buffer, bytes);
+				{
+					std::string line;
+					while (it->second.get_line(line))
+						std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << line << std::endl;
+				}
 			}
 			else if (events & (EPOLLHUP | EPOLLRDHUP))
 				disconnect_client(fd);
