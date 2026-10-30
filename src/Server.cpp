@@ -102,21 +102,34 @@ void Server::update()
 		else // any other fd is an EXISTING client that is ready → it sent us data (or it hung up): read it
 		{
 			int fd = event_array[i].data.fd;
+			uint32_t events = event_array[i].events;
 			auto it = _clients.find(fd);
 			if (it == _clients.end())
 				continue;
-
-			char buffer[512];
-			ssize_t bytes = it->second.recv_data(buffer, sizeof(buffer));
-			if (bytes <= 0)
+			if (events & EPOLLERR)
 			{
-				_epoll.remove(fd);
-				_clients.erase(it);
-				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
+				disconnect_client(fd);
+				continue;
 			}
-			else
-				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << std::string(buffer, bytes);
+			if (events & EPOLLIN)
+			{
+				char buffer[512];
+				ssize_t bytes = it->second.recv_data(buffer, sizeof(buffer));
+				if (bytes <= 0)
+					disconnect_client(fd);
+				else
+					std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << std::string(buffer, bytes);
+			}
+			else if (events & (EPOLLHUP | EPOLLRDHUP))
+				disconnect_client(fd);
 		}
-
 	}
 }
+
+void Server::disconnect_client(int fd)
+{
+	_epoll.remove(fd);
+	_clients.erase(fd);
+	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
+}
+

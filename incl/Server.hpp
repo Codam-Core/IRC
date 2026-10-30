@@ -50,4 +50,5 @@ class Server
 
 		// Public member functions
 		void update();
+		void disconnect_client(int fd);
 };
