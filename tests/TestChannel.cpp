@@ -23,6 +23,7 @@ void test_channel()
 
     try 
     {
+        channel.set_mode(Channel::modes::TOPIC_LOCK);
         channel.set_topic(user, "THIS should not be possible");
     } 
     catch (std::exception &e) {}

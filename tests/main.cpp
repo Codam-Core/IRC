@@ -4,6 +4,8 @@
 // maybe in the future have a header
 void test_channel();
 
+volatile sig_atomic_t g_stop = 0;
+
 int main(void)
 {
     // Test the Channel class
