@@ -8,6 +8,17 @@ class Channel
     typedef std::string User;
 
     public:
+        /**
+         * @brief The available modes that a channel can have
+         */
+        enum modes
+        {
+            INVITE_ONLY = 1 << 0, // Is this channel invite only?
+            TOPIC_LOCK = 1 << 1, // Are only operators allowed to change the topic of a channel
+            PASSWORD = 1 << 2, // Has a password been set?
+            LIMIT = 1 << 3, // Has a user limit been set
+        };
+
         Channel(void) = delete;
         Channel(const std::string& name);
         ~Channel(void);
@@ -56,7 +67,7 @@ class Channel
 
         /**
          * @brief Set the topic of the channel
-         * @note Only an operator is allowed to set a topic.
+         * @note Only an operator is allowed to set a topic when channel has mode TOPIC_LOCK enabled
          * @throws std::invalid_argument if the user is not an operator of the channel
          * 
          * @param user
@@ -64,6 +75,22 @@ class Channel
          */
         void set_topic(const User& user, const std::string& topic);
 
+        /**
+         * @brief Check whether a mode has been set
+         * 
+         * @param mode
+         * @return true when the mode has been set
+         */
+        bool has_mode(modes mode) const;
+
+        /**
+         * @brief Activate/Deactivate a mode
+         * 
+         * @param mode
+         * @return true when the mode has been set
+         */
+        void set_mode(modes mode);
+        void unset_mode(modes mode);
 
     private:
         
@@ -76,4 +103,7 @@ class Channel
 
         std::vector<User> _users;
         std::vector<User> _operators;
+
+        // this integer stores all the current active modes on a channel
+        unsigned int _mode;
 };
