@@ -31,6 +31,7 @@ class Server
 		// Private member functions
 		static std::string parse_password(const std::string &password_str);
 		static uint16_t parse_port(const std::string &port_str);
+		void disconnect_client(int fd);
 
 	public:
 		// Constructors
@@ -50,5 +51,4 @@ class Server
 
 		// Public member functions
 		void update();
-		void disconnect_client(int fd);
 };
