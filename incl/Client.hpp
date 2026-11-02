@@ -36,11 +36,3 @@ class Client
 		// Member functions
 };
 
-std::ostream& operator<<(std::ostream &output_stream, const Client& src);
-
-// Exceptions
-class ExceptionName : public std::exception
-{
-	const char* what() const noexcept override;
-};
-
