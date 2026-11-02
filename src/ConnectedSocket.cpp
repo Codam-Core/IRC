@@ -44,3 +44,25 @@ bool ConnectedSocket::get_line(std::string &line)
 	_recv_buffer.erase(0, end + 1);
 	return (true);
 }
+
+void ConnectedSocket::queue_send(const std::string &message)
+{
+	_send_buffer.append(message);
+}
+
+ssize_t ConnectedSocket::send_data()
+{
+	ssize_t bytes = send(_cs_fd.get_fd(), _send_buffer.data(), _send_buffer.size(), MSG_NOSIGNAL);
+	if (bytes > 0)
+		_send_buffer.erase(0, bytes);
+	
+	return (bytes);
+}
+
+bool ConnectedSocket::has_pending_send() const
+{
+	if (_send_buffer.empty())
+		return (false);
+	else
+		return (true);
+}

@@ -33,6 +33,7 @@ class Server
 		static std::string parse_password(const std::string &password_str);
 		static uint16_t parse_port(const std::string &port_str);
 		void disconnect_client(int fd);
+		void send_to_client(int fd, const std::string &message);
 
 	public:
 		// Constructors

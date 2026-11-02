@@ -115,16 +115,40 @@ void Server::update()
 			{
 				ssize_t bytes = it->second.get_socket().recv_data();
 				if (bytes <= 0)
+				{
 					disconnect_client(fd);
+					continue;
+				}
 				else
 				{
 					std::string line;
 					while (it->second.get_socket().get_line(line))
+					{
 						std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << line << std::endl;
+						
+						for (auto &other : _clients)
+						{
+							if (other.first != fd)
+								send_to_client(other.first, "fd " + std::to_string(fd) + ": " + line + "\r\n");
+						}
+					}
 				}
 			}
 			else if (events & (EPOLLHUP | EPOLLRDHUP))
+			{
 				disconnect_client(fd);
+				continue;
+			}
+			if (events & EPOLLOUT)
+			{
+				if (it->second.get_socket().send_data() < 0)
+				{
+					disconnect_client(fd);
+					continue;
+				}
+				if (!it->second.get_socket().has_pending_send())
+					_epoll.modify(fd, EPOLLIN | EPOLLRDHUP);
+			}
 		}
 	}
 }
@@ -136,3 +160,12 @@ void Server::disconnect_client(int fd)
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
 }
 
+void Server::send_to_client(int fd, const std::string &message)
+{
+	auto it = _clients.find(fd);
+	if (it == _clients.end())
+		return;
+
+	it->second.get_socket().queue_send(message);
+	_epoll.modify(fd, EPOLLIN | EPOLLRDHUP | EPOLLOUT); 
+}

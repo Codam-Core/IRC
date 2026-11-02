@@ -32,4 +32,5 @@ class Epoll
 		void add(int fd);
 		void remove(int fd);
 		int wait(epoll_event *events, int max_events);
+		void modify(int fd, uint32_t events);
 };
