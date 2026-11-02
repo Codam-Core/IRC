@@ -10,6 +10,7 @@ class ConnectedSocket
 		// Member variables
 		Fd			_cs_fd;
 		std::string	_recv_buffer; // bytes that don't form a complete line yet
+		std::string	_send_buffer; // bytes waiting untill epoll says we can write
 
 		static constexpr size_t RECV_SIZE = 512;
 
@@ -39,5 +40,9 @@ class ConnectedSocket
 		// Member functions
 		ssize_t recv_data();
 		bool get_line(std::string &line);
+		
+		void queue_send(const std::string &message);
+		ssize_t send_data();
+		bool has_pending_send() const;
 };
 
