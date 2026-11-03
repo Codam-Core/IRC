@@ -11,7 +11,7 @@ OBJ_DIR		:= obj
 TESTS_DIR	:= tests
 
 INCL		:=	$(notdir $(wildcard $(INCL_DIR)/*.hpp))
-SRCS		:=	$(notdir $(wildcard $(SRC_DIR)/*.cpp))
+SRCS 		:=  $(patsubst $(SRC_DIR)/%,%,$(wildcard $(SRC_DIR)/*.cpp $(SRC_DIR)/commands/*.cpp))
 TEST_SRCS	:=	$(notdir $(wildcard $(TESTS_DIR)/*.cpp))
 
 # Exclude the regular main.cpp when building tests
