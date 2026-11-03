@@ -22,8 +22,25 @@ int ConnectedSocket::get_fd() const
 }
 
 // Member functions
-ssize_t ConnectedSocket::recv_data(char *buffer, size_t size)
+ssize_t ConnectedSocket::recv_data()
 {
-	return (recv(_cs_fd.get_fd(), buffer, size, 0));
+	char buffer[RECV_SIZE];
+	ssize_t bytes = recv(_cs_fd.get_fd(), buffer, sizeof(buffer), 0);
+	if (bytes > 0)
+		_recv_buffer.append(buffer, bytes);
+	return (bytes);
 }
 
+bool ConnectedSocket::get_line(std::string &line)
+{
+	size_t end = _recv_buffer.find('\n');
+	if (end == std::string::npos)
+		return (false);
+
+	line = _recv_buffer.substr(0, end);
+	if (!line.empty() && line.back() == '\r')
+		line.pop_back();
+
+	_recv_buffer.erase(0, end + 1);
+	return (true);
+}

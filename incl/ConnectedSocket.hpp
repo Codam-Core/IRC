@@ -8,7 +8,10 @@ class ConnectedSocket
 {
 	private:
 		// Member variables
-		Fd _cs_fd;
+		Fd			_cs_fd;
+		std::string	_recv_buffer; // bytes that don't form a complete line yet
+
+		static constexpr size_t RECV_SIZE = 512;
 
 		// Error messages
 		static constexpr const char *FAILED_TO_SET_NONBLOCKING_MSG = "Failed to set client socket to non-blocking: ";
@@ -34,5 +37,7 @@ class ConnectedSocket
 		int get_fd() const ;
 
 		// Member functions
-		ssize_t recv_data(char *buffer, size_t size);
+		ssize_t recv_data();
+		bool get_line(std::string &line);
 };
+

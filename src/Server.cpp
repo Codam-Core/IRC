@@ -1,23 +1,13 @@
 #include "Server.hpp"
 
 // Constructor
-Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port), _epoll_fd(epoll_create1(0))
+Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port)
 {
-	
-	if (_epoll_fd.get_fd() == -1)
-		throw std::runtime_error(std::string(FAILED_TO_CREATE_EPOLL_MSG) + std::strerror(errno));
-	
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "constructor called: port " << _port << ", password: " << _password << std::endl;
 
-	epoll_event listen_event = {};
-	listen_event.events = EPOLLIN; // tells the server that a new client is waiting, there is something new to read!
-	listen_event.data.fd = _listeningSocket.get_fd();
-	
-	if (epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_ADD, listen_event.data.fd, &listen_event) == -1)
-		throw std::runtime_error(std::string(FAILED_TO_ADD_FD_TO_EPOLL_MSG) + std::strerror(errno));
+	_epoll.add(_listeningSocket.get_fd());
 
-	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "added listening fd " << _listeningSocket.get_fd() <<  " to epoll fd " << _epoll_fd.get_fd() << "." << std::endl;
-
+	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "added listening fd " << _listeningSocket.get_fd() <<  " to epoll fd " << _epoll.get_fd() << "." << std::endl;
 }
 
 // Destructor
@@ -80,7 +70,7 @@ uint16_t Server::parse_port(const std::string &port_str)
 void Server::update()
 {
 	epoll_event event_array[MAX_EVENTS];
-	int event_count = epoll_wait(_epoll_fd.get_fd(), event_array, MAX_EVENTS, -1);
+	int event_count = _epoll.wait(event_array, MAX_EVENTS);
 
 	if (event_count == -1)
 	{
@@ -98,13 +88,9 @@ void Server::update()
 			{
 				ConnectedSocket client(_listeningSocket.accept_client());
 				int client_fd = client.get_fd();
-
-				epoll_event client_event = {};
-				client_event.events = EPOLLIN;
-				client_event.data.fd = client_fd;
-				if (epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_ADD, client_fd, &client_event) == -1)
-					throw std::runtime_error(std::string(FAILED_TO_ADD_FD_TO_EPOLL_MSG) + std::strerror(errno));
-
+				
+				_epoll.add(client_fd);
+		
 				_clients.emplace(client_fd, std::move(client));
 				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd << std::endl;
 			}
@@ -116,21 +102,37 @@ void Server::update()
 		else // any other fd is an EXISTING client that is ready → it sent us data (or it hung up): read it
 		{
 			int fd = event_array[i].data.fd;
+			uint32_t events = event_array[i].events;
 			auto it = _clients.find(fd);
 			if (it == _clients.end())
 				continue;
-
-			char buffer[512];
-			ssize_t bytes = it->second.recv_data(buffer, sizeof(buffer));
-			if (bytes <= 0)
+			if (events & EPOLLERR)
 			{
-				epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_DEL, fd, nullptr);
-				_clients.erase(it);
-				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
+				disconnect_client(fd);
+				continue;
 			}
-			else
-				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << std::string(buffer, bytes);
+			if (events & EPOLLIN)
+			{
+				ssize_t bytes = it->second.recv_data();
+				if (bytes <= 0)
+					disconnect_client(fd);
+				else
+				{
+					std::string line;
+					while (it->second.get_line(line))
+						std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << line << std::endl;
+				}
+			}
+			else if (events & (EPOLLHUP | EPOLLRDHUP))
+				disconnect_client(fd);
 		}
-
 	}
 }
+
+void Server::disconnect_client(int fd)
+{
+	_epoll.remove(fd);
+	_clients.erase(fd);
+	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
+}
+
