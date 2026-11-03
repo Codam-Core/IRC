@@ -31,15 +31,9 @@ int main(int argc, char **argv)
 	}
 	catch (const std::exception &e)
 	{
-		if (!e.what())
-		{
-			std::cerr << PROGRAM_USAGE_MSG << std::endl;
-		}
-		else
-		{
-			std::cerr << "An error occurred: " << e.what() << std::endl;
-		}
+		std::cerr << "An error occurred: " << e.what() << std::endl;
 		return (EXIT_FAILURE);
 	}
+
 	return (EXIT_SUCCESS);
 }
