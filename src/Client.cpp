@@ -25,12 +25,12 @@ ConnectedSocket &Client::get_socket()
 
 // Member functions
 
+void Client::mark_for_close()
+{
+	_close_after_send = true;
+}
 
-// Overload operators
-
-
-
-
-// Exceptions
-
-
+bool Client::is_marked_for_close() const
+{
+	return (_close_after_send);
+}

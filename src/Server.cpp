@@ -119,11 +119,22 @@ void Server::update()
 					disconnect_client(fd);
 					continue;
 				}
+				if (it->second.is_marked_for_close())
+					continue;
 				else
 				{
 					std::string line;
 					while (it->second.get_socket().get_line(line))
 					{
+						// ------ TEMP (for testing) ------
+						if (line == "QUIT")
+						{
+							send_to_client(fd, "ERROR :Closing link\r\n");
+							it->second.mark_for_close();
+							break;    // stop handling more lines from this client
+						}
+						// -------------------------------
+
 						std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << line << std::endl;
 						
 						for (auto &other : _clients)
@@ -147,7 +158,15 @@ void Server::update()
 					continue;
 				}
 				if (!it->second.get_socket().has_pending_send())
-					_epoll.modify(fd, EPOLLIN | EPOLLRDHUP);
+				{
+					if (it->second.is_marked_for_close())
+					{
+						disconnect_client(fd);
+						continue;
+					}
+					else
+						_epoll.modify(fd, EPOLLIN | EPOLLRDHUP);
+				}
 			}
 		}
 	}
