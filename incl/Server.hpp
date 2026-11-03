@@ -6,6 +6,7 @@
 #include "ConnectedSocket.hpp"
 #include "Epoll.hpp"
 #include "Client.hpp"
+#include "Commands.hpp"
 
 extern volatile sig_atomic_t g_stop; // defined in main.cpp, set by the signal handler
 
@@ -21,6 +22,8 @@ class Server
 		
 		std::map<int, Client>			_clients; // key = client's fd
 
+		Commands						_commands;
+
 		static constexpr int			MAX_EVENTS = 64;
 
 		// Error messages
@@ -33,6 +36,8 @@ class Server
 		static std::string parse_password(const std::string &password_str);
 		static uint16_t parse_port(const std::string &port_str);
 		void disconnect_client(int fd);
+		void read_from_client(Client &client);
+		void parse_command(const std::string &line);
 		void send_to_client(int fd, const std::string &message);
 
 	public:

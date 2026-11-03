@@ -1,7 +1,7 @@
 #include "Server.hpp"
 
 // Constructor
-Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port)
+Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port), _commands(*this)
 {
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "constructor called: port " << _port << ", password: " << _password << std::endl;
 
@@ -112,39 +112,7 @@ void Server::update()
 				continue;
 			}
 			if (events & EPOLLIN)
-			{
-				ssize_t bytes = it->second.get_socket().recv_data();
-				if (bytes <= 0)
-				{
-					disconnect_client(fd);
-					continue;
-				}
-				if (it->second.is_marked_for_close())
-					continue;
-				else
-				{
-					std::string line;
-					while (it->second.get_socket().get_line(line))
-					{
-						// ------ TEMP (for testing) ------
-						if (line == "QUIT")
-						{
-							send_to_client(fd, "ERROR :Closing link\r\n");
-							it->second.mark_for_close();
-							break;    // stop handling more lines from this client
-						}
-						// -------------------------------
-
-						std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << line << std::endl;
-						
-						for (auto &other : _clients)
-						{
-							if (other.first != fd)
-								send_to_client(other.first, "fd " + std::to_string(fd) + ": " + line + "\r\n");
-						}
-					}
-				}
-			}
+				read_from_client(_clients.at(fd));
 			else if (events & (EPOLLHUP | EPOLLRDHUP))
 			{
 				disconnect_client(fd);
@@ -177,6 +145,81 @@ void Server::disconnect_client(int fd)
 	_epoll.remove(fd);
 	_clients.erase(fd);
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
+}
+
+void Server::read_from_client(Client &client)
+{
+	// read data from the client socket into the receive buffer
+	ssize_t bytes = client.get_socket().recv_data();
+	std::string line;
+	
+	// if we received 0 bytes, the client has closed the connection, so we disconnect it
+	if (bytes <= 0)
+		return disconnect_client(client.get_fd());
+
+	// if the client is marked for close, we don't want to process any more data from it
+	if (client.is_marked_for_close())
+		return;
+	
+	// fetch the line from the receiving buffer. only complete lines will be proceesed (\n).
+	while (client.get_socket().get_line(line))
+	{
+		// ------ TEMP (for testing) ------
+		if (line == "QUIT")
+		{
+			send_to_client(client.get_fd(), "ERROR :Closing link\r\n");
+			client.mark_for_close();
+			break;    // stop handling more lines from this client
+		}
+		// -------------------------------
+
+		// parse the command and its arguments from the line
+		parse_command(line);
+		
+		for (auto &other : _clients)
+		{
+			// maybe in the future we can compare the client object itself with a operator overload ==.
+			if (other.first != client.get_fd())
+				send_to_client(other.first, "fd " + std::to_string(client.get_fd()) + ": " + line + "\r\n");
+		}
+	}
+}
+
+void Server::parse_command(const std::string &line)
+{
+	// convert the line into a stringstream to easily parse the command and its arguments
+	std::stringstream ss(line);
+	std::string cmd;
+	std::vector<std::string> arguments;
+
+	// parse the command and its arguments from the line
+	ss >> cmd;
+
+	std::string argument;
+
+	// extract all words untill nothing is left.
+	while (ss >> argument)
+	{
+		// handle a special case where the last argument start with a colon (:).
+		// in this case, we want to treat the rest of the line as a single argument, including spaces.
+		if (!argument.empty() && argument[0] == ':')
+		{
+			std::string rest;
+
+			// getline reads from the rest of the stringstream until EOF is found, and stores it in the rest variable.
+			std::getline(ss, rest);
+
+			// remove the (":") from the argument, and add the rest of the line to it, and push it to the arguments vector.
+			arguments.push_back(argument.substr(1) + rest);
+			break;
+		}
+
+		// add the argument to the list of arguments
+		arguments.push_back(argument);
+	}
+
+	// handle the command with its arguments
+	_commands.handle_command(cmd, arguments);
 }
 
 void Server::send_to_client(int fd, const std::string &message)

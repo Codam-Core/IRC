@@ -1,6 +1,11 @@
 #include "Commands.hpp"
 
-void Commands::JOIN(const std::string &args)
+void Commands::JOIN(const std::vector<std::string>& args)
 {
-    std::cout << colour::BLUE << "JOIN command called with arguments" << args << colour::RESET << std::endl;
+    std::cout << colour::BLUE << "JOIN command called with arguments ";
+    for (auto &argument : args)
+    {
+        std::cout << argument << ", ";
+    }  
+    std::cout << colour::RESET << std::endl;
 }
