@@ -13,6 +13,7 @@ class Client
 		std::string		_username;
 		bool			_has_password = false;
 		bool			_is_registered = false;
+		bool 			_close_after_send = false;   // "close me as soon as everything is sent"
 
 
 	public:
@@ -34,5 +35,8 @@ class Client
 		ConnectedSocket &get_socket();
 
 		// Member functions
+		void mark_for_close();            // put the note on
+		bool is_marked_for_close() const; // is the note there?
+
 };
 
