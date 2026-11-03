@@ -5,6 +5,7 @@
 #include "ListeningSocket.hpp"
 #include "ConnectedSocket.hpp"
 #include "Epoll.hpp"
+#include "Client.hpp"
 
 extern volatile sig_atomic_t g_stop; // defined in main.cpp, set by the signal handler
 
@@ -18,7 +19,7 @@ class Server
 		ListeningSocket 				_listeningSocket;
 		Epoll 							_epoll;
 		
-		std::map<int, ConnectedSocket>	_clients; // key = client's fd
+		std::map<int, Client>			_clients; // key = client's fd
 
 		static constexpr int			MAX_EVENTS = 64;
 

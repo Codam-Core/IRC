@@ -70,7 +70,7 @@ uint16_t Server::parse_port(const std::string &port_str)
 void Server::update()
 {
 	epoll_event event_array[MAX_EVENTS];
-	int event_count = _epoll.wait(event_array, MAX_EVENTS);
+	int event_count = _epoll.wait(event_array, MAX_EVENTS); // waits till something is happening
 
 	if (event_count == -1)
 	{
@@ -86,12 +86,12 @@ void Server::update()
 		{
 			try
 			{
-				ConnectedSocket client(_listeningSocket.accept_client());
-				int client_fd = client.get_fd();
+				ConnectedSocket socket(_listeningSocket.accept_client());
+				int client_fd = socket.get_fd();
 				
 				_epoll.add(client_fd);
 		
-				_clients.emplace(client_fd, std::move(client));
+				_clients.emplace(client_fd, std::move(socket));
 				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd << std::endl;
 			}
 			catch (const std::exception &e)
@@ -113,13 +113,13 @@ void Server::update()
 			}
 			if (events & EPOLLIN)
 			{
-				ssize_t bytes = it->second.recv_data();
+				ssize_t bytes = it->second.get_socket().recv_data();
 				if (bytes <= 0)
 					disconnect_client(fd);
 				else
 				{
 					std::string line;
-					while (it->second.get_line(line))
+					while (it->second.get_socket().get_line(line))
 						std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "fd " << fd << " says: " << line << std::endl;
 				}
 			}
