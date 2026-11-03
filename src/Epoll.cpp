@@ -45,4 +45,10 @@ int Epoll::wait(epoll_event *events, int max_events)
 	return (epoll_wait(_epoll_fd.get_fd(), events, max_events, -1));
 }
 
-
+void Epoll::modify(int fd, uint32_t events)
+{
+	epoll_event event = {};
+	event.events = events;
+	event.data.fd = fd;
+	epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_MOD, fd, &event);
+}
