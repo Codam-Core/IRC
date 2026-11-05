@@ -11,6 +11,8 @@ class Client
 		ConnectedSocket	_socket;
 		std::string		_nickname;
 		std::string		_username;
+		std::string		_realname;
+		std::string		_hostname;
 		bool			_has_password = false;
 		bool			_is_registered = false;
 		bool 			_close_after_send = false;   // "close me as soon as everything is sent"
@@ -33,6 +35,12 @@ class Client
 		// Getters and Setters
 		int get_fd() const;
 		ConnectedSocket &get_socket();
+		void set_nickname(const std::string &nickname);
+		void set_username(const std::string &username);
+		void set_hostname(const std::string &hostname);
+		std::string get_nickname() const;
+		std::string get_username() const;
+		std::string get_hostname() const;
 		
 		// Member functions
 		void mark_for_close();            // put the note on

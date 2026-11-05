@@ -35,6 +35,36 @@ bool Client::is_marked_for_close() const
 	return (_close_after_send);
 }
 
+std::string Client::get_nickname() const
+{
+	return (_nickname);
+}
+
+std::string Client::get_username() const
+{
+	return (_username);
+}
+
+std::string Client::get_hostname() const
+{
+	return (_hostname);
+}
+
+void Client::set_nickname(const std::string &nickname)
+{
+	_nickname = nickname;
+}
+
+void Client::set_username(const std::string &username)
+{
+	_username = username;
+}
+
+void Client::set_hostname(const std::string &hostname)
+{
+	_hostname = hostname;
+}
+
 // Operator overloaders
 bool Client::operator==(const Client &other) const // becasue we define ==, the compiler writes != for us automatically.
 {
