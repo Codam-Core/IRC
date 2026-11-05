@@ -13,7 +13,7 @@ class Client
 		std::string		_username;
 		std::string		_realname;
 		std::string		_hostname;
-		bool			_has_password = false;
+		std::string     _password;
 		bool			_is_registered = false;
 		bool 			_close_after_send = false;   // "close me as soon as everything is sent"
 
@@ -38,9 +38,14 @@ class Client
 		void set_nickname(const std::string &nickname);
 		void set_username(const std::string &username);
 		void set_hostname(const std::string &hostname);
+		void set_password(const std::string &password);
+		void set_realname(const std::string &realname);
 		std::string get_nickname() const;
 		std::string get_username() const;
 		std::string get_hostname() const;
+		std::string get_password() const;
+		std::string get_realname() const;
+
 		
 		// Member functions
 		void mark_for_close();            // put the note on
@@ -48,5 +53,6 @@ class Client
 		
 		// Operator overloaders
 		bool operator==(const Client &other) const;
+		bool operator!=(const Client &other) const;
 };
 

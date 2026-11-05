@@ -1,6 +1,7 @@
 #include "CommandStream.hpp"
+#include "Server.hpp"
 
-CommandStream::CommandStream(const std::string& command): _command(command)
+CommandStream::CommandStream(const std::string& command, Server &server): _command(command), _server(server)
 {
 }
 
@@ -8,7 +9,7 @@ CommandStream::~CommandStream()
 {
 }
 
-CommandStream::CommandStream(const CommandStream& other): std::basic_ios<char>(), std::stringstream(other.str()), responses(other.responses), _command(other._command)
+CommandStream::CommandStream(const CommandStream& other): std::basic_ios<char>(), std::stringstream(other.str()), responses(other.responses), _command(other._command), _server(other._server)
 {
 }
 
@@ -51,7 +52,10 @@ CommandStream& CommandStream::code(int code)
 
 CommandStream& CommandStream::client(const Client& client)
 {
-    *this << client.get_nickname() << " ";
+    if (client.get_nickname().empty())
+        *this << "*" << " ";
+    else
+        *this << client.get_nickname() << " ";
     return *this;
 }
 
@@ -99,7 +103,7 @@ void CommandStream::send(Client& client)
 {
     for (auto &response : responses)
     {
-        client.get_socket().queue_send(response);
+        _server.send_to_client(client, response); 
     }
 }
 
