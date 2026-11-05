@@ -35,15 +35,14 @@ class Server
 		// Private member functions
 		static std::string parse_password(const std::string &password_str);
 		static uint16_t parse_port(const std::string &port_str);
-		void disconnect_client(int fd);
-		void read_from_client(Client &client);
-		void parse_command(const std::string &line);
-		void send_to_client(int fd, const std::string &message);
+		void disconnect_client(Client &client);
+		bool read_from_client(Client &client); // return false? -> client disconnected
+		void parse_command(Client &client, const std::string &line);
+		void send_to_client(Client &client, const std::string &message);
 
 	public:
 		// Constructors
 		Server(const std::string &port, const std::string &password);
-
 		Server(const Server& other) = delete;
 
 		// Destructor

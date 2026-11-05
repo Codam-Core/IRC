@@ -34,3 +34,13 @@ bool Client::is_marked_for_close() const
 {
 	return (_close_after_send);
 }
+
+// Operator overloaders
+bool Client::operator==(const Client &other) const // becasue we define ==, the compiler writes != for us automatically.
+{
+	if (this->get_fd() == other.get_fd())   // two clients are "the same" if they have the same fd
+		return (true);
+	else
+		return (false);
+}
+

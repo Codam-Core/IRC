@@ -29,14 +29,16 @@ class Client
 		// Operators
 		Client &operator=(const Client& other) = delete;
 		Client &operator=(Client&& other) noexcept = default;
-
+		
 		// Getters and Setters
 		int get_fd() const;
 		ConnectedSocket &get_socket();
-
+		
 		// Member functions
 		void mark_for_close();            // put the note on
 		bool is_marked_for_close() const; // is the note there?
-
+		
+		// Operator overloaders
+		bool operator==(const Client &other) const;
 };
 

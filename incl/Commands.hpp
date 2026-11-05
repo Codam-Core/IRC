@@ -4,12 +4,13 @@
 
 // to prevent circular dependency, we forward declare the Server class here, and include it in Commands.cpp
 class Server;
+class Client;
 
 class Commands
 {
 
     typedef std::string Command;
-    typedef void(Commands::*CommandFn)(const std::vector<std::string>& args);
+    typedef void(Commands::*CommandFn)(Client &client, const std::vector<std::string>& args);
 
     public:
         Commands(void) = delete;
@@ -24,15 +25,14 @@ class Commands
          * @param cmd 
          * @param args 
          */
-        void handle_command(const std::string& cmd, const std::vector<std::string>& args);
+        void handle_command(Client &client, const std::string& cmd, const std::vector<std::string>& args);
 
     private:
-
-        void INVITE(const std::vector<std::string>& args);
-        void NICK(const std::vector<std::string>& args);
-        void PRIVMSG(const std::vector<std::string>& args);
-        void TOPIC(const std::vector<std::string>& args);
-        void JOIN(const std::vector<std::string>& args);
+        void INVITE(Client &client, const std::vector<std::string>& args);
+        void NICK(Client &client, const std::vector<std::string>& args);
+        void PRIVMSG(Client &client, const std::vector<std::string>& args);
+        void TOPIC(Client &client, const std::vector<std::string>& args);
+        void JOIN(Client &client, const std::vector<std::string>& args);
 
         static const std::map<Command, CommandFn> _commands;
         Server& _server;
