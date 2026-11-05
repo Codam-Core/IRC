@@ -52,7 +52,9 @@ void ConnectedSocket::queue_send(const std::string &message)
 
 ssize_t ConnectedSocket::send_data()
 {
-	std::cout << "sending" << std::string(_send_buffer.data()) << std::endl;
+	// std::cout << "sending " << std::string(_send_buffer.data()) << std::endl;
+	std::cout << colour::GREEN << "[Send] " << colour::RESET << "fd " << _cs_fd.get_fd() << ": " << std::string(_send_buffer.data());
+
 	ssize_t bytes = send(_cs_fd.get_fd(), _send_buffer.data(), _send_buffer.size(), MSG_NOSIGNAL);
 	if (bytes > 0)
 		_send_buffer.erase(0, bytes);
