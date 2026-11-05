@@ -38,7 +38,6 @@ class Server
 		void disconnect_client(Client &client);
 		bool read_from_client(Client &client); // return false? -> client disconnected
 		void parse_command(Client &client, const std::string &line);
-		void send_to_client(Client &client, const std::string &message);
 
 	public:
 		// Constructors
@@ -53,7 +52,12 @@ class Server
 
 		// Getters and Setters
 		uint16_t get_port() const;
-		std::string get_password() const;
+		bool check_password(Client& client, const std::string &password);
+		
+		// Client functions
+		void send_to_client(Client &client, const std::string &message);
+		bool nickname_taken(const std::string &nickname) const;
+		bool already_registered(Client &client, const std::string& user_name) const;
 
 		// Public member functions
 		void update();

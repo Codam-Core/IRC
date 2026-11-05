@@ -6,6 +6,7 @@
 // to prevent circular dependency, we forward declare the Server class here, and include it in Commands.cpp
 class Server;
 class Client;
+class CommandStream;
 
 class Commands
 {
@@ -34,6 +35,12 @@ class Commands
         void PRIVMSG(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void TOPIC(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void JOIN(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        void CAP(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        void PASS(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        void USER(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+
+        // helper functions
+        void not_enough_parameters(Client &client, CommandStream& stream);
 
         static const std::map<Command, CommandFn> _commands;
         Server& _server;

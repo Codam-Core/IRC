@@ -2,10 +2,12 @@
 #include "Client.hpp"
 #include "Channel.hpp"
 
+class Server;
+
 class CommandStream: public std::stringstream
 {
     public:
-        CommandStream(const std::string& command);
+        CommandStream(const std::string& command, Server& server);
         ~CommandStream();
 
         // assignment op
@@ -93,4 +95,5 @@ class CommandStream: public std::stringstream
     private:
         std::vector<std::string> responses;
         std::string _command;
+        Server& _server;
 };

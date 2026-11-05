@@ -50,6 +50,16 @@ std::string Client::get_hostname() const
 	return (_hostname);
 }
 
+std::string Client::get_password() const
+{
+	return (_password);
+}
+
+std::string Client::get_realname() const
+{
+	return (_realname);
+}
+
 void Client::set_nickname(const std::string &nickname)
 {
 	_nickname = nickname;
@@ -65,10 +75,28 @@ void Client::set_hostname(const std::string &hostname)
 	_hostname = hostname;
 }
 
+void Client::set_password(const std::string &password)
+{
+	_password = password;
+}
+
+void Client::set_realname(const std::string &realname)
+{
+	_realname = realname;
+}
+
 // Operator overloaders
 bool Client::operator==(const Client &other) const // becasue we define ==, the compiler writes != for us automatically.
 {
 	if (this->get_fd() == other.get_fd())   // two clients are "the same" if they have the same fd
+		return (true);
+	else
+		return (false);
+}
+
+bool Client::operator!=(const Client &other) const
+{
+	if (this->get_fd() != other.get_fd())   // two clients are "the same" if they have the same fd
 		return (true);
 	else
 		return (false);

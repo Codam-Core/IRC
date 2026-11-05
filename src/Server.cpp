@@ -22,9 +22,18 @@ uint16_t Server::get_port() const
 	return (_port);
 }
 
-std::string Server::get_password() const
+bool Server::check_password(Client& client, const std::string &password)
 {
-	return (_password);
+	if (password == password)
+	{
+		client.set_password(password);
+		return (true);
+	}
+	else
+	{
+		disconnect_client(client);
+		return (false);
+	}
 }
 
 // Private member functions
@@ -246,5 +255,29 @@ void Server::send_to_client(Client &client, const std::string &message)
 {
 	client.get_socket().queue_send(message);
 	_epoll.modify(client.get_fd(), EPOLLIN | EPOLLRDHUP | EPOLLOUT); 
+}
+
+bool Server::nickname_taken(const std::string &nickname) const
+{
+	for (auto& [fd, client] : _clients)
+	{
+		if (client.get_nickname() == nickname)
+			return (true);
+	}
+	return (false);
+}
+
+bool Server::already_registered(Client &client, const std::string& user_name) const
+{
+	// check if the client is already registered by comparing its username with other registered clients
+	for (auto& [fd, registeredClients] : _clients)
+	{
+		if (registeredClients != client)
+			continue;
+
+		if (registeredClients.get_username() == user_name)
+			return (true);
+	}
+	return (false);
 }
 
