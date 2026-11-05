@@ -1,7 +1,7 @@
 #include "Commands.hpp"
 #include "Server.hpp"
 
-void Commands::TOPIC(Client &client, const std::vector<std::string>& args)
+void Commands::TOPIC(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
     std::cout << colour::BLUE << "TOPIC command called from fd " << client.get_fd() << " with arguments ";
     for (auto &argument : args)

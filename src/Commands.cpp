@@ -2,8 +2,11 @@
 #include "Server.hpp"
 
 const std::map<Commands::Command, Commands::CommandFn> Commands::_commands = {
+    {"CAP", &Commands::CAP},
+    {"PASS", &Commands::PASS},
     {"NICK", &Commands::NICK},
     {"JOIN", &Commands::JOIN},
+    {"USER", &Commands::USER},
     {"TOPIC", &Commands::TOPIC},
     {"INVITE", &Commands::INVITE},
     {"PRIVMSG", &Commands::PRIVMSG},
@@ -11,9 +14,17 @@ const std::map<Commands::Command, Commands::CommandFn> Commands::_commands = {
 
 Commands::Commands(Server& server) : _server(server) {};
 
+void Commands::not_enough_parameters(Client &client, CommandStream& stream)
+{
+    stream.prefix().code(461).client(client).command().message("Not enough parameters").finish();
+}
+
 
 void Commands::handle_command(Client &client, const std::string& cmd, const std::vector<std::string>& args)
 {
+    // create a command stream with the command name
+    CommandStream stream(cmd, _server);
+
     // fetch the cmd pair
     auto it = _commands.find(cmd);
 
@@ -29,5 +40,8 @@ void Commands::handle_command(Client &client, const std::string& cmd, const std:
     
     // this syntax is a bit weird but what happends is that since command is a member function of Command class
     // we also have to call it with the "this" keyword so that the method has the class object (this). and ofcourse we have to pass (args)
-    (this->*command)(client, args);
+    (this->*command)(client, args, stream);
+
+    // send the data to the client
+    stream.send(client);
 }
