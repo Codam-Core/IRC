@@ -103,33 +103,38 @@ void Server::update()
 		{
 			int fd = event_array[i].data.fd;
 			uint32_t events = event_array[i].events;
-			auto it = _clients.find(fd);
-			if (it == _clients.end())
+			auto client_it = _clients.find(fd);
+			if (client_it == _clients.end())
 				continue;
+			Client &client = client_it->second;
+
 			if (events & EPOLLERR)
 			{
-				disconnect_client(fd);
+				disconnect_client(client);
 				continue;
 			}
 			if (events & EPOLLIN)
-				read_from_client(_clients.at(fd));
+			{
+				if (!read_from_client(client)) // client disconnected so we must skipp the EPOLLOUT part
+					continue; 
+			}
 			else if (events & (EPOLLHUP | EPOLLRDHUP))
 			{
-				disconnect_client(fd);
+				disconnect_client(client);
 				continue;
 			}
 			if (events & EPOLLOUT)
 			{
-				if (it->second.get_socket().send_data() < 0)
+				if (client.get_socket().send_data() < 0)
 				{
-					disconnect_client(fd);
+					disconnect_client(client);
 					continue;
 				}
-				if (!it->second.get_socket().has_pending_send())
+				if (!client.get_socket().has_pending_send())
 				{
-					if (it->second.is_marked_for_close())
+					if (client.is_marked_for_close())
 					{
-						disconnect_client(fd);
+						disconnect_client(client);
 						continue;
 					}
 					else
@@ -140,14 +145,15 @@ void Server::update()
 	}
 }
 
-void Server::disconnect_client(int fd)
+void Server::disconnect_client(Client &client)
 {
+	int fd = client.get_fd();
 	_epoll.remove(fd);
 	_clients.erase(fd);
 	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
 }
 
-void Server::read_from_client(Client &client)
+bool Server::read_from_client(Client &client) // return false? -> client disconnected
 {
 	// read data from the client socket into the receive buffer
 	ssize_t bytes = client.get_socket().recv_data();
@@ -155,11 +161,14 @@ void Server::read_from_client(Client &client)
 	
 	// if we received 0 bytes, the client has closed the connection, so we disconnect it
 	if (bytes <= 0)
-		return disconnect_client(client.get_fd());
+	{
+		disconnect_client(client);
+		return (false);
+	}
 
 	// if the client is marked for close, we don't want to process any more data from it
 	if (client.is_marked_for_close())
-		return;
+		return (true);
 	
 	// fetch the line from the receiving buffer. only complete lines will be proceesed (\n).
 	while (client.get_socket().get_line(line))
@@ -167,25 +176,26 @@ void Server::read_from_client(Client &client)
 		// ------ TEMP (for testing) ------
 		if (line == "QUIT")
 		{
-			send_to_client(client.get_fd(), "ERROR :Closing link\r\n");
+			send_to_client(client, "ERROR :Closing link\r\n");
 			client.mark_for_close();
 			break;    // stop handling more lines from this client
 		}
 		// -------------------------------
 
 		// parse the command and its arguments from the line
-		parse_command(line);
+		parse_command(client, line);
 		
+		// broadcast loop
 		for (auto &other : _clients)
 		{
-			// maybe in the future we can compare the client object itself with a operator overload ==.
-			if (other.first != client.get_fd())
-				send_to_client(other.first, "fd " + std::to_string(client.get_fd()) + ": " + line + "\r\n");
+			if (other.second != client)
+				send_to_client(other.second, "fd " + std::to_string(client.get_fd()) + ": " + line + "\r\n");
 		}
 	}
+	return (true);
 }
 
-void Server::parse_command(const std::string &line)
+void Server::parse_command(Client &client, const std::string &line)
 {
 	// convert the line into a stringstream to easily parse the command and its arguments
 	std::stringstream ss(line);
@@ -193,7 +203,17 @@ void Server::parse_command(const std::string &line)
 	std::vector<std::string> arguments;
 
 	// parse the command and its arguments from the line
-	ss >> cmd;
+	if (!(ss >> cmd))          // empty line or only spaces → nothing to do
+		return;
+
+	if (cmd[0] == ':')         // a prefix → skip it; the command is the next word
+	{
+		if (!(ss >> cmd))      // only a prefix, no command
+			return;
+	}
+	
+	for (char &c : cmd)        // make commands uppercase
+		c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
 
 	std::string argument;
 
@@ -219,15 +239,12 @@ void Server::parse_command(const std::string &line)
 	}
 
 	// handle the command with its arguments
-	_commands.handle_command(cmd, arguments);
+	_commands.handle_command(client, cmd, arguments);
 }
 
-void Server::send_to_client(int fd, const std::string &message)
+void Server::send_to_client(Client &client, const std::string &message)
 {
-	auto it = _clients.find(fd);
-	if (it == _clients.end())
-		return;
-
-	it->second.get_socket().queue_send(message);
-	_epoll.modify(fd, EPOLLIN | EPOLLRDHUP | EPOLLOUT); 
+	client.get_socket().queue_send(message);
+	_epoll.modify(client.get_fd(), EPOLLIN | EPOLLRDHUP | EPOLLOUT); 
 }
+

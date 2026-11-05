@@ -1,8 +1,9 @@
 #include "Commands.hpp"
+#include "Server.hpp"
 
-void Commands::PRIVMSG(const std::vector<std::string>& args)
+void Commands::PRIVMSG(Client &client, const std::vector<std::string>& args)
 {
-    std::cout << colour::BLUE << "PRIVMSG command called with arguments ";
+    std::cout << colour::BLUE << "PRIVMSG command called from fd " << client.get_fd() << " with arguments ";
     for (auto &argument : args)
     {
         std::cout << argument << ", ";
