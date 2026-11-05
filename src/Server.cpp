@@ -193,13 +193,6 @@ bool Server::read_from_client(Client &client) // return false? -> client disconn
 
 		// parse the command and its arguments from the line
 		parse_command(client, line);
-		
-		// broadcast loop
-		for (auto &other : _clients)
-		{
-			if (other.second != client)
-				send_to_client(other.second, "fd " + std::to_string(client.get_fd()) + ": " + line + "\r\n");
-		}
 	}
 	return (true);
 }
