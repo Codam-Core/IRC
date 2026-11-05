@@ -212,8 +212,7 @@ void Server::parse_command(Client &client, const std::string &line)
 			return;
 	}
 	
-	for (char &c : cmd)        // make commands uppercase
-		c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+	cmd = to_upper(cmd);
 
 	std::string argument;
 
@@ -248,3 +247,17 @@ void Server::send_to_client(Client &client, const std::string &message)
 	_epoll.modify(client.get_fd(), EPOLLIN | EPOLLRDHUP | EPOLLOUT); 
 }
 
+Channel *Server::find_channel(const std::string &name)
+{
+	auto it = _channels.find(to_lower(name));
+	if (it == _channels.end())
+		return (nullptr);
+	return (&it->second);
+}
+
+Channel &Server::get_or_create_channel(const std::string &name)
+{
+	std::string channel = to_lower(name);
+	auto result = _channels.try_emplace(channel, channel); // if channel isn't a key yet, it builds Channel(channel) directly inside the map. If the key already exists, it does nothing.
+	return (result.first->second);
+}
