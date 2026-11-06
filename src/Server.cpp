@@ -24,7 +24,7 @@ uint16_t Server::get_port() const
 
 bool Server::check_password(Client& client, const std::string &password)
 {
-	if (password == password)
+	if (_password == password)
 	{
 		client.set_password(password);
 		return (true);
