@@ -37,5 +37,4 @@ void Commands::JOIN(Client &client, const std::vector<std::string>& args, Comman
 	{
 		_server.send_to_client(*member.first, join_message);
 	}
-
 }
