@@ -39,7 +39,7 @@ void Commands::INVITE(Client &client, const std::vector<std::string>& args, Comm
     }
 
     // is the client a member of the channel? If not, send back an error message.
-    if (channel->is_member(&client))
+    if (!channel->is_member(&client))
     {
         stream.prefix().code(442).client(client).parameter(args[1]).message("You're not on that channel").finish();
         return;
@@ -56,6 +56,9 @@ void Commands::INVITE(Client &client, const std::vector<std::string>& args, Comm
         stream.prefix().code(482).client(client).parameter(args[1]).message("You're not channel operator").finish();
         return;
     }
+
+    // add the target client to the channel's invited list
+    channel->add_invite(target);
 
     // NOTIFY the target the client has invited them to the channel.
     stream.prefix().code(341).client(client).parameter(args[0]).parameter(args[1]).finish();
