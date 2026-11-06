@@ -31,7 +31,7 @@ bool Server::check_password(Client& client, const std::string &password)
 	}
 	else
 	{
-		disconnect_client(client);
+		client.mark_for_close();
 		return (false);
 	}
 }
@@ -190,9 +190,12 @@ bool Server::read_from_client(Client &client) // return false? -> client disconn
 			break;    // stop handling more lines from this client
 		}
 		// -------------------------------
-
+		
 		// parse the command and its arguments from the line
 		parse_command(client, line);
+		// a command may have marked the client for close: stop handling its other lines
+		if (client.is_marked_for_close())
+			break;
 	}
 	return (true);
 }
