@@ -38,11 +38,24 @@ class Commands
         void CAP(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void PASS(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void USER(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        void MODE(Client &client, const std::vector<std::string>& args, CommandStream& stream);
 
-        // helper functions
+        // general helper functions
         void not_enough_parameters(Client &client, CommandStream& stream);
+        void print_info(Client &client, const std::string& cmd, const std::vector<std::string>& args);
+        
+        // MODE helper functions
+        struct ModeChange
+        {
+            std::string mode;
+            bool adding;
+            std::optional<std::string> additional_argument;
+        };
+        void register_mode_change(const std::string& mode, bool adding, std::optional<std::string> additional_argument = std::nullopt);
+        void broadcast_mode_changes(Channel* channel, Client& client);
 
         static const std::map<Command, CommandFn> _commands;
+        std::vector<ModeChange> _mode_changes;
         Server& _server;
 };
 

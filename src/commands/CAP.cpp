@@ -3,19 +3,9 @@
 // Allows the server to show all channal privileges a user has instead of just one
 #define MULIT_PREFIX ":mulit-prefix"
 
-void static print_info(Client &client, const std::vector<std::string>& args)
-{
-    std::cout << colour::BLUE << "CAP command called from fd " << client.get_fd() << " with arguments ";
-    for (auto &argument : args)
-    {
-        std::cout << argument << ", ";
-    }  
-    std::cout << colour::RESET << std::endl;
-}
-
 void Commands::CAP(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, args);
+    print_info(client, "CAP", args);
     // if the client didn't provide any arguments, send back an error message
     if (args.empty())
     {

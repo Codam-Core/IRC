@@ -7,6 +7,7 @@ const std::map<Commands::Command, Commands::CommandFn> Commands::_commands = {
     {"NICK", &Commands::NICK},
     {"JOIN", &Commands::JOIN},
     {"USER", &Commands::USER},
+    {"MODE", &Commands::MODE},
     {"TOPIC", &Commands::TOPIC},
     {"INVITE", &Commands::INVITE},
     {"PRIVMSG", &Commands::PRIVMSG},
@@ -19,6 +20,54 @@ void Commands::not_enough_parameters(Client &client, CommandStream& stream)
     stream.prefix().code(461).client(client).command().message("Not enough parameters").finish();
 }
 
+void Commands::print_info(Client &client, const std::string& cmd, const std::vector<std::string>& args)
+{
+    std::cout << colour::BLUE << cmd << " command called from fd " << client.get_fd() << " with arguments ";
+    for (auto &argument : args)
+    {
+        std::cout << argument << ", ";
+    }  
+    std::cout << colour::RESET << std::endl;
+}
+
+void Commands::register_mode_change(const std::string& mode, bool adding, std::optional<std::string> additional_argument)
+{
+    _mode_changes.push_back({mode, adding, additional_argument});
+}
+
+void Commands::broadcast_mode_changes(Channel* channel, Client& client)
+{
+    // If there are no mode changes to broadcast, return early.
+    if (_mode_changes.empty())
+        return;
+
+    // Construct the mode string and parameters for the MODE command.
+    std::string mode_str;
+    std::vector<std::string> mode_params;
+    bool adding = false;
+
+    // Determine whether the first mode change is adding or removing modes.
+    for (const auto& change : _mode_changes)
+    {
+        // check if we have to add a '+' or '-' to the mode string
+        // we always add a '+' or '-' when the first mode is added, and we also add it when the adding state changes (from adding to removing or vice versa)
+        if (mode_str.empty() || adding != change.adding)
+            mode_str += (change.adding ? "+" : "-");
+
+        // add the mode character to the mode string
+        mode_str += change.mode;
+        
+        // if the mode change has an additional argument, add it to the parameters
+        if (change.additional_argument)
+            mode_params.push_back(*change.additional_argument);
+    }
+
+    CommandStream stream("MODE", _server);
+    stream.prefix(client).command().parameter(channel->get_name()).parameter(mode_str).parameter(mode_params).finish();
+
+    // broadcase the mode changes to all members of the channel. including the requesting client.
+    stream.send_to_channel(*channel);
+}
 
 void Commands::handle_command(Client &client, const std::string& cmd, const std::vector<std::string>& args)
 {
