@@ -274,6 +274,18 @@ bool Server::nickname_taken(const std::string &nickname) const
 	return (false);
 }
 
+Client* Server::fetch_client_by_nickname(const std::string &nickname) const
+{
+	for (auto& [fd, other] : _clients)
+	{
+		if (other.get_nickname() == nickname)
+		{
+			return (&other);
+		}
+	}
+	return (nullptr);
+}
+
 bool Server::already_registered(Client &client, const std::string& user_name) const
 {
 	// check if the client is already registered by comparing its username with other registered clients
