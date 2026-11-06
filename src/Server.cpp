@@ -274,7 +274,7 @@ bool Server::nickname_taken(const std::string &nickname) const
 	return (false);
 }
 
-Client* Server::fetch_client_by_nickname(const std::string &nickname) const
+Client* Server::fetch_client_by_nickname(const std::string &nickname)
 {
 	for (auto& [fd, other] : _clients)
 	{

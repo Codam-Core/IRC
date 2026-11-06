@@ -20,7 +20,9 @@ void Commands::INVITE(Client &client, const std::vector<std::string>& args, Comm
         return;
     }
 
+    // fetch the target client and the channel from the server
     Client* target = _server.fetch_client_by_nickname(args[0]);
+    Channel* channel = _server.find_channel(args[1]);
 
     // check whether the nickname is known to the server. If not, send back an error message.
     if (target == nullptr)
@@ -29,10 +31,31 @@ void Commands::INVITE(Client &client, const std::vector<std::string>& args, Comm
         return;
     }
 
-    // @TODO: check whether the channel exists
-    // @TODO: check whether the client is a member of the channel
-    // @TODO: check whether the target user is already a member of the channel
-    // @TODO: check whether the channel is invite-only and whether the client has the privileges to invite others
+    // check whether the channel exists. If not, send back an error message.
+    if (channel == nullptr)
+    {
+        stream.prefix().code(403).client(client).parameter(args[1]).message("Channel doesn't exist").finish();
+        return;
+    }
+
+    // is the client a member of the channel? If not, send back an error message.
+    if (channel->is_member(&client))
+    {
+        stream.prefix().code(442).client(client).parameter(args[1]).message("You're not on that channel").finish();
+        return;
+    }
+
+    if (channel->is_member(target))
+    {
+        stream.prefix().code(443).client(client).parameter(args[0]).parameter(args[1]).message("is already on channel").finish();
+        return;
+    }
+
+    if (channel->has_mode(Channel::INVITE_ONLY) && !channel->is_operator(&client))
+    {
+        stream.prefix().code(482).client(client).parameter(args[1]).message("You're not channel operator").finish();
+        return;
+    }
 
     // NOTIFY the target the client has invited them to the channel.
     stream.prefix().code(341).client(client).parameter(args[0]).parameter(args[1]).finish();
