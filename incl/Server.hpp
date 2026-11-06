@@ -41,18 +41,19 @@ class Server
 		void disconnect_client(Client &client);
 		bool read_from_client(Client &client); // return false? -> client disconnected
 		void parse_command(Client &client, const std::string &line);
-
-	public:
+		void remove_client_from_all_channels(Client &client);
+		
+		public:
 		// Constructors
 		Server(const std::string &port, const std::string &password);
 		Server(const Server& other) = delete;
-
+		
 		// Destructor
 		~Server(void);
-
+		
 		// Operators
 		Server &operator=(const Server& other) = delete;
-
+		
 		// Getters and Setters
 		uint16_t get_port() const;
 		bool check_password(Client& client, const std::string &password);
@@ -62,7 +63,8 @@ class Server
 		bool nickname_taken(const std::string &nickname) const;
 		bool already_registered(Client &client, const std::string& user_name) const;
 		Client* fetch_client_by_nickname(const std::string &nickname);
-
+		void remove_client_from_channel(Client &client, Channel& channel);
+		
 		// Public member functions
 		void update();
 

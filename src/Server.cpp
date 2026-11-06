@@ -156,6 +156,8 @@ void Server::update()
 
 void Server::disconnect_client(Client &client)
 {
+	remove_client_from_all_channels(client);
+
 	int fd = client.get_fd();
 	_epoll.remove(fd);
 	_clients.erase(fd);
@@ -301,4 +303,26 @@ bool Server::already_registered(Client &client, const std::string& user_name) co
 			return (true);
 	}
 	return (false);
+}
+
+void Server::remove_client_from_channel(Client &client, Channel& channel)
+{
+	// remove the client from members and invites; 
+	channel.remove_member(&client);
+	channel.remove_invite(&client);
+	std::cerr << colour::BLUE << "[Server]" << colour::RESET << "removed client with fd " << client.get_fd() << " from " << channel.get_name() << ", members left: " << channel.member_count() << std::endl;
+	// erase the channel if it's empty now
+	if (channel.member_count() == 0)
+		_channels.erase(channel.get_name());
+}
+
+void Server::remove_client_from_all_channels(Client &client)
+{
+	auto it = _channels.begin();
+	while (it != _channels.end())
+	{
+		auto current = it;
+		++it;
+		remove_client_from_channel(client, current->second);
+	}
 }
