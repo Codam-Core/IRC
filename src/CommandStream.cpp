@@ -9,7 +9,7 @@ CommandStream::~CommandStream()
 {
 }
 
-CommandStream::CommandStream(const CommandStream& other): std::basic_ios<char>(), std::stringstream(other.str()), responses(other.responses), _command(other._command), _server(other._server)
+CommandStream::CommandStream(const CommandStream& other): std::basic_ios<char>(), std::stringstream(other.str()), _responses(other._responses), _command(other._command), _server(other._server)
 {
 }
 
@@ -18,7 +18,7 @@ CommandStream CommandStream::operator=(const CommandStream& other)
     if (this != &other)
     {
         this->_command = other._command;
-        this->responses = other.responses;
+        this->_responses = other._responses;
     }
     return *this;
 }
@@ -93,7 +93,7 @@ void CommandStream::finish()
         return;
 
     // add the CRLF to the end of the stringstream, and push it to the responses vector
-    responses.push_back(this->str() + "\r\n");
+    _responses.push_back(this->str() + "\r\n");
 
     // clear the stringstream for the next command
     this->str("");
@@ -101,9 +101,23 @@ void CommandStream::finish()
 
 void CommandStream::send(Client& client)
 {
-    for (auto &response : responses)
+    for (auto &response : _responses)
     {
         _server.send_to_client(client, response); 
     }
 }
 
+// send to all members of a channel. optional: to skip the sender with except
+void CommandStream::send_to_channel(Channel &channel, Client *except)
+{
+    for (auto &member : channel.get_members())
+	{
+		if (member.first == except)
+			continue;
+
+		for (auto &response : _responses)
+		{
+			_server.send_to_client(*member.first, response);
+		}
+	}
+}

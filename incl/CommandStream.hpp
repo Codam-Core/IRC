@@ -92,8 +92,13 @@ class CommandStream: public std::stringstream
          */
         void send(Client& client);
 
+		/**
+        * @brief Send all the responses in the command stream to a channel (possible to except one member -> the sender)
+        */
+		void send_to_channel(Channel &channel, Client *except = nullptr);
+
     private:
-        std::vector<std::string> responses;
+        std::vector<std::string> _responses;
         std::string _command;
         Server& _server;
 };
