@@ -41,6 +41,7 @@ class Server
 		void disconnect_client(Client &client);
 		bool read_from_client(Client &client); // return false? -> client disconnected
 		void parse_command(Client &client, const std::string &line);
+		void remove_from_all_channels(Client &client);
 
 	public:
 		// Constructors
