@@ -3,13 +3,6 @@
 
 void Commands::JOIN(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    // std::cout << colour::YELLOW << "JOIN command called from fd " << client.get_fd() << " with arguments ";
-    // for (auto &argument : args)
-    // {
-    //     std::cout << argument << ", ";
-    // }  
-    // std::cout << colour::RESET << std::endl;
-
 	if (args.empty())
 	{
 		not_enough_parameters(client, stream);
@@ -31,10 +24,13 @@ void Commands::JOIN(Client &client, const std::vector<std::string>& args, Comman
 	else
 		channel.add_member(&client, new_channel);
 
+	// TODO change this to stream 
 	std::string join_message = ":" + client.get_nickname() + "!" + client.get_username() + "@" + client.get_hostname() + " JOIN " + channel.get_name() + "\r\n";
 
 	for (auto &member : channel.get_members())
 	{
+		// sendstream.send()
 		_server.send_to_client(*member.first, join_message);
 	}
 }
+
