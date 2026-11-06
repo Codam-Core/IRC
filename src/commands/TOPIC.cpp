@@ -61,6 +61,6 @@ void Commands::TOPIC(Client &client, const std::vector<std::string>& args, Comma
     // broadcast the new topic to all members of the channel including the client who set it
     for (auto &[other, is_operator] : channel->get_members())
     {
-        _server.send_to_client(*other, broadcastStream.str());
+        broadcastStream.send(*other);
     }
 }
