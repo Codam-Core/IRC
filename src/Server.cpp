@@ -274,6 +274,18 @@ bool Server::nickname_taken(const std::string &nickname) const
 	return (false);
 }
 
+Client* Server::fetch_client_by_nickname(const std::string &nickname)
+{
+	for (auto& [fd, other] : _clients)
+	{
+		if (other.get_nickname() == nickname)
+		{
+			return (&other);
+		}
+	}
+	return (nullptr);
+}
+
 bool Server::already_registered(Client &client, const std::string& user_name) const
 {
 	// check if the client is already registered by comparing its username with other registered clients
@@ -288,3 +300,17 @@ bool Server::already_registered(Client &client, const std::string& user_name) co
 	return (false);
 }
 
+Channel *Server::find_channel(const std::string &name)
+{
+	auto it = _channels.find(to_lower(name));
+	if (it == _channels.end())
+		return (nullptr);
+	return (&it->second);
+}
+
+Channel &Server::get_or_create_channel(const std::string &name)
+{
+	std::string channel = to_lower(name);
+	auto result = _channels.try_emplace(channel, channel); // if channel isn't a key yet, it builds Channel(channel) directly inside the map. If the key already exists, it does nothing.
+	return (result.first->second);
+}
