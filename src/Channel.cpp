@@ -1,17 +1,104 @@
 #include "Channel.hpp"
 #include "colours.hpp"
-#include <algorithm>
 
+// constructor/desructor
 Channel::Channel(const std::string& name) : _name(name)
 {
-    std::cerr << colour::BLUE << "[Channel] " << colour::RESET << "constructor called: channel " << _name << " created" << std::endl;
+    std::cerr << colour::YELLOW << "[Channel] " << colour::RESET << "constructor called: channel " << _name << " created" << std::endl;
 }
 
 Channel::~Channel(void)
 {
-    std::cerr << colour::BLUE << "[Channel] " << colour::RESET << "destructor called: channel " << _name << " destroyed" << std::endl;
+    std::cerr << colour::YELLOW << "[Channel] " << colour::RESET << "destructor called: channel " << _name << " destroyed" << std::endl;
 }
 
+
+// members
+void Channel::add_member(Client *client, bool is_operator)
+{
+	_members[client] = is_operator;
+}
+
+void Channel::remove_member(Client *client)
+{
+	_members.erase(client);
+}
+
+bool Channel::is_member(Client *client) const
+{
+	return (_members.find(client) != _members.end()); // find looks for the key. If it isn't there, you get end().
+}
+
+bool Channel::is_operator(Client *client) const
+{
+	auto it = _members.find(client);
+	if (it == _members.end())
+		return (false);         // not a member at all → certainly not an operator
+	return (it->second);        // the bool: operator here or not
+}
+
+void Channel::set_operator(Client *client, bool is_operator)
+{
+	auto it = _members.find(client);
+	if (it == _members.end())
+		return ; 
+	it->second = is_operator;
+} 
+
+size_t Channel::member_count() const
+{
+	return (_members.size());
+}
+
+const std::map<Client *, bool>& Channel::get_members() const
+{
+	return (_members);
+} 
+
+
+// invites
+void Channel::add_invite(Client *client)
+{
+	_invited.insert(client);
+}
+
+void Channel::remove_invite(Client *client)
+{
+	_invited.erase(client);
+}
+
+bool Channel::is_invited(Client *client) const
+{
+	if (_invited.find(client) != _invited.end())
+		return (true);
+	else
+		return (false);
+}
+
+
+// key and limit
+const std::string& Channel::get_key() const
+{
+	return (_key);
+}
+
+void Channel::set_key(const std::string &key)
+{
+	_key = key;
+}
+
+size_t Channel::get_limit() const
+{
+	return (_limit);
+}
+
+void Channel::set_limit(size_t limit)
+{
+	_limit = limit;
+}
+
+
+// modes
 bool Channel::has_mode(modes mode) const
 {
     return _mode & mode; // AND
@@ -27,31 +114,8 @@ void Channel::unset_mode(modes mode)
     _mode &= ~mode; // AND NOT
 }
 
-int Channel::user_count() const
-{
-    return (_users.size() + _operators.size());
-}
 
-void Channel::add_user(const User& user)
-{
-    _users.push_back(user);
-}
-
-void Channel::remove_user(const User& user)
-{
-    _users.erase(std::remove(_users.begin(), _users.end(), user), _users.end());
-}
-
-void Channel::add_operator(const User& user)
-{
-    _operators.push_back(user);
-}
-
-void Channel::remove_operator(const User& user)
-{
-    _operators.erase(std::remove(_operators.begin(), _operators.end(), user), _operators.end());
-}
-
+// getters and setters
 std::string Channel::get_name() const
 {
     return (_name);
@@ -62,13 +126,8 @@ std::string Channel::get_topic() const
     return (_topic);
 }
 
-void Channel::set_topic(const User& user, const std::string& topic)
+void Channel::set_topic(const std::string &topic)
 {
-    // Check if the user is an operator of the channel only when topic lock has been set
-    if (has_mode(TOPIC_LOCK) && std::find(_operators.begin(), _operators.end(), user) == _operators.end())
-        throw std::invalid_argument("User is not an operator of the channel");
-
-    // If the user is an operator, set the topic
     _topic = topic;
 }
 

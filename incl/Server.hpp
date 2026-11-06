@@ -7,6 +7,8 @@
 #include "Epoll.hpp"
 #include "Client.hpp"
 #include "Commands.hpp"
+#include "Channel.hpp"
+#include "utils.hpp"
 
 extern volatile sig_atomic_t g_stop; // defined in main.cpp, set by the signal handler
 
@@ -21,6 +23,7 @@ class Server
 		Epoll 							_epoll;
 		
 		std::map<int, Client>			_clients; // key = client's fd
+		std::map<std::string, Channel>	_channels; // key = channel's name; lowercase with '#'
 
 		Commands						_commands;
 
@@ -61,4 +64,8 @@ class Server
 
 		// Public member functions
 		void update();
+
+		// Helpers
+		Channel *find_channel(const std::string &name);
+		Channel &get_or_create_channel(const std::string &name);
 };
