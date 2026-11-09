@@ -23,18 +23,6 @@ ConnectedSocket &Client::get_socket()
 	return (_socket);
 }
 
-// Member functions
-
-void Client::mark_for_close()
-{
-	_close_after_send = true;
-}
-
-bool Client::is_marked_for_close() const
-{
-	return (_close_after_send);
-}
-
 std::string Client::get_nickname() const
 {
 	return (_nickname);
@@ -84,6 +72,27 @@ void Client::set_realname(const std::string &realname)
 {
 	_realname = realname;
 }
+
+bool Client::is_registered() const
+{
+	return (_is_registered);
+}
+
+void Client::set_registered()
+{
+	_is_registered = true;
+}
+
+void Client::mark_for_close()
+{
+	_close_after_send = true;
+}
+
+bool Client::is_marked_for_close() const
+{
+	return (_close_after_send);
+}
+
 
 // Operator overloaders
 bool Client::operator==(const Client &other) const // becasue we define ==, the compiler writes != for us automatically.
