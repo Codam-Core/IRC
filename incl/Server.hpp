@@ -64,6 +64,7 @@ class Server
 		Client* fetch_client_by_nickname(const std::string &nickname);
 		void remove_client_from_channel(Client &client, Channel& channel);
 		void leave_all_channels(Client &client, const std::string &reason);
+		std::set<Client *> get_clients_sharing_a_channel(Client &client);
 
 		// Public member functions
 		void update();

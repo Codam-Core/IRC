@@ -318,20 +318,8 @@ void Server::remove_client_from_all_channels(Client &client)
 
 void Server::leave_all_channels(Client &client, const std::string &reason)
 {
-	// collect everyone who shares a channel with the client; a set keeps each one only once
-	std::set<Client *> receivers;
-	for (auto &[name, channel] : _channels)
-	{
-		(void)name;
-		if (!channel.is_member(&client))
-			continue;
-		for (auto &[member, is_operator] : channel.get_members())
-		{
-			(void)is_operator;
-			if (member != &client)
-				receivers.insert(member);
-		}
-	}
+	// everyone who shares a channel with the client
+	std::set<Client *> receivers = get_clients_sharing_a_channel(client);
 
 	// tell them all that the client quit
 	CommandStream quit_stream("QUIT", *this);
@@ -341,4 +329,24 @@ void Server::leave_all_channels(Client &client, const std::string &reason)
 
 	// now remove the client from every channel (and erase channels that became empty)
 	remove_client_from_all_channels(client);
+}
+
+// everyone who is in at least one channel together with the client (not the client itself), each only once
+std::set<Client *> Server::get_clients_sharing_a_channel(Client &client)
+{
+	// collect everyone who shares a channel with the client; a set keeps each one only once
+	std::set<Client *> others;
+	for (auto &[name, channel] : _channels)
+	{
+		(void)name;
+		if (!channel.is_member(&client))
+			continue;
+		for (auto &[member, is_operator] : channel.get_members())
+		{
+			(void)is_operator;
+			if (member != &client)
+				others.insert(member);
+		}
+	}
+	return (others);
 }
