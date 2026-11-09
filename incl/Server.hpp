@@ -71,5 +71,6 @@ class Server
 
 		// Helpers
 		Channel *find_channel(const std::string &name);
+		const std::map<std::string, Channel> &get_channels() const;
 		Channel &get_or_create_channel(const std::string &name);
 };

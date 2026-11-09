@@ -43,7 +43,7 @@ class Commands
         void KICK(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void QUIT(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void PART(Client &client, const std::vector<std::string>& args, CommandStream& stream);
-        // void LIST(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        void LIST(Client &client, const std::vector<std::string>& args, CommandStream& stream);
 
 		// general helper functions
         void not_enough_parameters(Client &client, CommandStream& stream);

@@ -265,6 +265,11 @@ Channel *Server::find_channel(const std::string &name)
 	return (&it->second);
 }
 
+const std::map<std::string, Channel> &Server::get_channels() const
+{
+	return (_channels);
+}
+
 Channel &Server::get_or_create_channel(const std::string &name)
 {
 	std::string channel = to_lower(name);
