@@ -35,7 +35,13 @@ bool ConnectedSocket::get_line(std::string &line)
 {
 	size_t end = _recv_buffer.find('\n');
 	if (end == std::string::npos)
+	{
+		// no complete line yet. if it's already too long, keep only the start so the buffer can't grow forever;
+		// when the \n arrives, the line is still too long and the server rejects it
+		if (_recv_buffer.size() > MAX_LINE_LENGTH + 1)
+			_recv_buffer.resize(MAX_LINE_LENGTH + 1);
 		return (false);
+	}
 
 	line = _recv_buffer.substr(0, end);
 	if (!line.empty() && line.back() == '\r')

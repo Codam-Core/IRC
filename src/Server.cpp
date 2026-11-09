@@ -186,6 +186,15 @@ bool Server::read_from_client(Client &client) // return false? -> client disconn
 	// fetch the line from the receiving buffer. only complete lines will be proceesed (\n).
 	while (client.get_socket().get_line(line))
 	{		
+		// a line longer than the IRC limit is not handled
+		if (line.size() > ConnectedSocket::MAX_LINE_LENGTH)
+		{
+			CommandStream error_stream("", *this);
+			error_stream.prefix().code(417).client(client).message("Input line was too long").finish();
+			error_stream.send(client);
+			continue;
+		}
+
 		// parse the command and its arguments from the line
 		parse_command(client, line);
 		
