@@ -27,3 +27,26 @@ std::vector<std::string> split(const std::string &text, char delimiter)
 	}
 	return (parts);
 }
+
+// RFC 2812: a letter or special first, then letters, digits, specials or '-'
+bool is_valid_nickname(const std::string &nickname)
+{
+	const std::string specials = "[]\\`_^{|}";
+
+	if (nickname.empty() || nickname.size() > MAX_NICK_LENGTH)
+		return (false);
+
+	for (size_t i = 0; i < nickname.size(); i++)
+	{
+		char c = nickname[i];
+		unsigned char uc = static_cast<unsigned char>(c);
+
+		bool allowed = std::isalpha(uc) || specials.find(c) != std::string::npos;
+		if (i > 0)
+			allowed = allowed || std::isdigit(uc) || c == '-';
+
+		if (!allowed)
+			return (false);
+	}
+	return (true);
+}
