@@ -156,7 +156,9 @@ void Server::update()
 
 void Server::disconnect_client(Client &client)
 {
-	remove_client_from_all_channels(client);
+	// tell the others (if they didn't QUIT already) and leave all channels
+	leave_all_channels(client, "Connection closed");
+
 
 	int fd = client.get_fd();
 	_epoll.remove(fd);
@@ -183,18 +185,10 @@ bool Server::read_from_client(Client &client) // return false? -> client disconn
 	
 	// fetch the line from the receiving buffer. only complete lines will be proceesed (\n).
 	while (client.get_socket().get_line(line))
-	{
-		// ------ TEMP (for testing) ------
-		if (line == "QUIT")
-		{
-			send_to_client(client, "ERROR :Closing link\r\n");
-			client.mark_for_close();
-			break;    // stop handling more lines from this client
-		}
-		// -------------------------------
-		
+	{		
 		// parse the command and its arguments from the line
 		parse_command(client, line);
+		
 		// a command may have marked the client for close: stop handling its other lines
 		if (client.is_marked_for_close())
 			break;
@@ -311,4 +305,31 @@ void Server::remove_client_from_all_channels(Client &client)
 		++it;
 		remove_client_from_channel(client, current->second);
 	}
+}
+
+void Server::leave_all_channels(Client &client, const std::string &reason)
+{
+	// collect everyone who shares a channel with the client; a set keeps each one only once
+	std::set<Client *> receivers;
+	for (auto &[name, channel] : _channels)
+	{
+		(void)name;
+		if (!channel.is_member(&client))
+			continue;
+		for (auto &[member, is_operator] : channel.get_members())
+		{
+			(void)is_operator;
+			if (member != &client)
+				receivers.insert(member);
+		}
+	}
+
+	// tell them all that the client quit
+	CommandStream quit_stream("QUIT", *this);
+	quit_stream.prefix(client).command().message(reason).finish();
+	for (Client *receiver : receivers)
+		quit_stream.send(*receiver);
+
+	// now remove the client from every channel (and erase channels that became empty)
+	remove_client_from_all_channels(client);
 }
