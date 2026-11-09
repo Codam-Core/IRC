@@ -1,27 +1,49 @@
 #include "Commands.hpp"
 #include "Server.hpp"
 
+// JOIN #a,#b,#c key1,key2: join every channel in the list, with the key at the same position
 void Commands::JOIN(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
+	std::vector<std::string> channels;
+
 	// check whether the client gave the required arguments
-	if (args.empty())
+	if (!args.empty())
+		channels = split(args[0], ',');
+
+	if (channels.empty())
 	{
 		not_enough_parameters(client, stream);
 		return;
 	}
 
-	// check if the channel name starts with #
-	if (args[0].empty() || args[0].front() != '#')
+	std::vector<std::string> keys;
+	if (args.size() >= 2)
+		keys = split(args[1], ',');
+
+	for (size_t i = 0; i < channels.size(); i++)
 	{
-		stream.prefix().code(403).client(client).parameter(args[0]).message("No such channel").finish();
+		std::string key = "";
+		if (i < keys.size())
+			key = keys[i];
+		join_channel(client, channels[i], key, stream);
+	}
+}
+
+
+void Commands::join_channel(Client &client, const std::string &name, const std::string &key, CommandStream& stream)
+{
+	// check if the channel name starts with #
+	if (name.empty() || name.front() != '#')
+	{
+		stream.prefix().code(403).client(client).parameter(name).message("No such channel").finish();
 		return;
 	}
 
 	// check if the channel already exsists
-	bool new_channel = _server.find_channel(args[0]) == nullptr;
+	bool new_channel = _server.find_channel(name) == nullptr;
 
 	// if channel is new: create it, if not: get it
-	Channel &channel = _server.get_or_create_channel(args[0]);
+	Channel &channel = _server.get_or_create_channel(name);
 
 	// check if client is already a member: if so, do nothing
 	if (channel.is_member(&client))
@@ -35,7 +57,7 @@ void Commands::JOIN(Client &client, const std::vector<std::string>& args, Comman
 	}
 
 	// +k: the client must give the right key (JOIN #a <key>)
-	if (channel.has_mode(Channel::PASSWORD) && (args.size() < 2 || args[1] != channel.get_key()))
+	if (channel.has_mode(Channel::PASSWORD) && key != channel.get_key())
 	{
 		stream.prefix().code(475).client(client).parameter(channel.get_name()).message("Cannot join channel (+k)").finish();
 		return;

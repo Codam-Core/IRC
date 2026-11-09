@@ -47,6 +47,8 @@ class Commands
         void not_enough_parameters(Client &client, CommandStream& stream);
         void print_info(Client &client, const std::string& cmd, const std::vector<std::string>& args);
         void try_register(Client &client, CommandStream& stream);
+		void join_channel(Client &client, const std::string &name, const std::string &key, CommandStream& stream);
+        void send_privmsg(Client &client, const std::string &target, const std::string &text, CommandStream& stream);
 
         // MODE helper functions
         struct ModeChange
