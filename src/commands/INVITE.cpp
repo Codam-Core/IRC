@@ -1,19 +1,9 @@
 #include "Commands.hpp"
 #include "Server.hpp"
 
-void static print_info(Client &client, const std::vector<std::string>& args)
-{
-    std::cout << colour::BLUE << "INVITE command called from fd " << client.get_fd() << " with arguments ";
-    for (auto &argument : args)
-    {
-        std::cout << argument << ", ";
-    }  
-    std::cout << colour::RESET << std::endl;
-}
-
 void Commands::INVITE(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, args);
+    print_info(client, "INVITE", args);
     if (args.size() < 2)
     {
         not_enough_parameters(client, stream);
