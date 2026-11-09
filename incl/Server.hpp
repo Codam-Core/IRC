@@ -61,7 +61,6 @@ class Server
 		// Client functions
 		void send_to_client(Client &client, const std::string &message);
 		bool nickname_taken(const std::string &nickname) const;
-		bool already_registered(Client &client, const std::string& user_name) const;
 		Client* fetch_client_by_nickname(const std::string &nickname);
 		void remove_client_from_channel(Client &client, Channel& channel);
 

@@ -44,7 +44,8 @@ class Commands
 		// general helper functions
         void not_enough_parameters(Client &client, CommandStream& stream);
         void print_info(Client &client, const std::string& cmd, const std::vector<std::string>& args);
-        
+        void try_register(Client &client, CommandStream& stream);
+
         // MODE helper functions
         struct ModeChange
         {

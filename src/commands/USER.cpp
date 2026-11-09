@@ -12,8 +12,8 @@ void Commands::USER(Client &client, const std::vector<std::string>& args, Comman
         return;
     }
 
-    // check if the client is already registered
-    if (_server.already_registered(client, args[0]))
+    // check if the client is already registered; USER is only allowed once
+    if (client.is_registered())
     {
         stream.prefix().code(462).client(client).message("You may not reregister").finish();
         return;
@@ -24,4 +24,5 @@ void Commands::USER(Client &client, const std::vector<std::string>& args, Comman
     // args[1] is the user mode bitmask that we don't support
     // args[2] is an unused parameter
     client.set_realname(args[3]);
+	try_register(client, stream);
 }
