@@ -101,10 +101,11 @@ void Commands::handle_command(Client &client, const std::string& cmd, const std:
     // fetch the cmd pair
     auto it = _commands.find(cmd);
 
-    // we couldn't find the cmd
+    // we couldn't find the cmd: tell the client
     if (it == _commands.end())
     {
-        std::cerr << colour::RED << "[Commands] " << colour::RESET << "unknown command: " << cmd << std::endl; // temp error message; later this becomes 421 ERR_UNKNOWNCOMMAND, sent back to that client.
+        stream.prefix().code(421).client(client).parameter(cmd).message("Unknown command").finish();
+        stream.send(client);
         return;
     }
 
