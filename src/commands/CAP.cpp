@@ -37,7 +37,7 @@ void Commands::CAP(Client &client, const std::vector<std::string>& args, Command
     if (subcommand == "END")
     {
         // @TODO we should try to check if the client has the password correct nickname is valid etc..
-        stream.prefix().code(1).client(client).message("Welocme to IRC server!").finish();
+        stream.prefix().code(1).client(client).message("Welcome to IRC server!").finish();
         stream.prefix().code(1).client(client).message("Your host is irc.JL").finish();
         return;
     }
