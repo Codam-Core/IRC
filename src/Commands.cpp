@@ -13,7 +13,9 @@ const std::map<Commands::Command, Commands::CommandFn> Commands::_commands = {
     {"PRIVMSG", &Commands::PRIVMSG},
     {"PING", &Commands::PING},
     {"KICK", &Commands::KICK},
-    {"QUIT", &Commands::QUIT}
+    {"QUIT", &Commands::QUIT},
+    {"PART", &Commands::PART}
+    // {"LIST", &Commands::LIST}
 };
 
 Commands::Commands(Server& server) : _server(server) {};

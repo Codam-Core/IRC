@@ -42,13 +42,16 @@ class Commands
 		void PING(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void KICK(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void QUIT(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        void PART(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        // void LIST(Client &client, const std::vector<std::string>& args, CommandStream& stream);
 
 		// general helper functions
         void not_enough_parameters(Client &client, CommandStream& stream);
         void print_info(Client &client, const std::string& cmd, const std::vector<std::string>& args);
         void try_register(Client &client, CommandStream& stream);
 		void join_channel(Client &client, const std::string &name, const std::string &key, CommandStream& stream);
-        void send_privmsg(Client &client, const std::string &target, const std::string &text, CommandStream& stream);
+		void part_channel(Client &client, const std::string &name, const std::string &reason, CommandStream& stream);
+		void send_privmsg(Client &client, const std::string &target, const std::string &text, CommandStream& stream);
 
         // MODE helper functions
         struct ModeChange
