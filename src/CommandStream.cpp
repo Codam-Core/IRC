@@ -46,7 +46,7 @@ CommandStream& CommandStream::prefix(Client& client, Channel& channel)
 
 CommandStream& CommandStream::code(int code)
 {
-    *this << code << " ";
+    *this << std::setw(3) << std::setfill('0') << code << " ";
     return *this;
 }
 
