@@ -91,15 +91,6 @@ void Commands::join_channel(Client &client, const std::string &name, const std::
 		stream.prefix().code(332).client(client).parameter(channel.get_name()).message(channel.get_topic()).finish();
 
 	// the names list: everyone in the channel, '@' in front of operators
-	std::string names;
-	for (auto &[member, is_operator] : channel.get_members())
-	{
-		if (!names.empty())
-			names += " ";
-		if (is_operator)
-			names += "@";
-		names += member->get_nickname();
-	}
-	stream.prefix().code(353).client(client).parameter("=").parameter(channel.get_name()).message(names).finish();
+	stream.prefix().code(353).client(client).parameter("=").parameter(channel.get_name()).get_member_names(channel).finish();
 	stream.prefix().code(366).client(client).parameter(channel.get_name()).message("End of /NAMES list").finish();
 }

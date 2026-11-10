@@ -82,6 +82,13 @@ class CommandStream: public std::stringstream
          */
         CommandStream& command();
 
+		/**
+        * @brief add the names of all channel members as the last parameter, '@' in front of operators
+        *
+        * @return CommandStream&
+        */
+        CommandStream& get_member_names(const Channel& channel);
+
         /**
          * @brief finish the command stream by adding the CRLF
          */
