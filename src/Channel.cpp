@@ -1,15 +1,16 @@
 #include "Channel.hpp"
 #include "colours.hpp"
+#include "debug.hpp"
 
 // constructor/desructor
 Channel::Channel(const std::string& name) : _name(name)
 {
-    std::cerr << colour::YELLOW << "[Channel] " << colour::RESET << "constructor called: channel " << _name << " created" << std::endl;
+    debug(colour::YELLOW, "Channel", "constructor called: channel " + _name + " created");
 }
 
 Channel::~Channel(void)
 {
-    std::cerr << colour::YELLOW << "[Channel] " << colour::RESET << "destructor called: channel " << _name << " destroyed" << std::endl;
+    debug(colour::YELLOW, "Channel", "destructor called: channel " + _name + " destroyed");
 }
 
 

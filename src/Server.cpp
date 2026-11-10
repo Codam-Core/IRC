@@ -1,19 +1,20 @@
 #include "Server.hpp"
+#include "debug.hpp"
 
 // Constructor
 Server::Server(const std::string &port, const std::string &password) : _port(parse_port(port)), _password(parse_password(password)), _listeningSocket(_port), _commands(*this)
 {
-	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "constructor called: port " << _port << ", password: " << _password << std::endl;
+	debug(colour::MAGENTA, "Server", "constructor called: port " + std::to_string(_port) + ", password: " + _password);
 
 	_epoll.add(_listeningSocket.get_fd());
 
-	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "added listening fd " << _listeningSocket.get_fd() <<  " to epoll fd " << _epoll.get_fd() << "." << std::endl;
+	debug(colour::MAGENTA, "Server", "added listening fd " + std::to_string(_listeningSocket.get_fd()) + " to epoll fd " + std::to_string(_epoll.get_fd()));
 }
 
 // Destructor
 Server::~Server(void)
 {
-	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "destructor called" << std::endl;
+	debug(colour::MAGENTA, "Server", "destructor called");
 }
 
 // Getters and Setters
@@ -101,7 +102,7 @@ void Server::update()
 				_epoll.add(client_fd);
 		
 				_clients.emplace(client_fd, std::move(socket));
-				std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "accepted new client with fd " << client_fd << std::endl;
+				debug(colour::MAGENTA, "Server", "accepted new client with fd " + std::to_string(client_fd));
 			}
 			catch (const std::exception &e)
 			{
@@ -163,7 +164,7 @@ void Server::disconnect_client(Client &client)
 	int fd = client.get_fd();
 	_epoll.remove(fd);
 	_clients.erase(fd);
-	std::cerr << colour::MAGENTA << "[Server] " << colour::RESET << "client fd " << fd << " disconnected" << std::endl;
+	debug(colour::MAGENTA, "Server", "client fd " + std::to_string(fd) + " disconnected");
 }
 
 bool Server::read_from_client(Client &client) // return false? -> client disconnected
@@ -304,7 +305,7 @@ void Server::remove_client_from_channel(Client &client, Channel& channel)
 	// remove the client from members and invites; 
 	channel.remove_member(&client);
 	channel.remove_invite(&client);
-	std::cerr << colour::BLUE << "[Server]" << colour::RESET << "removed client with fd " << client.get_fd() << " from " << channel.get_name() << ", members left: " << channel.member_count() << std::endl;
+	debug(colour::MAGENTA, "Server", "removed client with fd " + std::to_string(client.get_fd()) + " from " + channel.get_name() + ", members left: " + std::to_string(channel.member_count()));
 	// erase the channel if it's empty now
 	if (channel.member_count() == 0)
 		_channels.erase(channel.get_name());

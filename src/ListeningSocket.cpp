@@ -1,4 +1,5 @@
 #include "ListeningSocket.hpp"
+#include "debug.hpp"
 
 // Constructors
 ListeningSocket::ListeningSocket(uint16_t port) : _ls_fd(socket(AF_INET, SOCK_STREAM, 0)) // create socket, uses IPv4 and TCP
@@ -24,13 +25,13 @@ ListeningSocket::ListeningSocket(uint16_t port) : _ls_fd(socket(AF_INET, SOCK_ST
 	if (listen(_ls_fd.get_fd(), SOMAXCONN) == -1) // start accepting connections
 		throw std::runtime_error(std::string(FAILED_TO_LISTEN_MSG) + std::strerror(errno));
 
-	std::cerr << colour::YELLOW << "[ListeningSocket] " << colour::RESET << "constructor called: listening on 0.0.0.0:" << port << " with fd " << _ls_fd.get_fd() << std::endl;
+	debug(colour::YELLOW, "ListeningSocket", "constructor called: listening on 0.0.0.0:" + std::to_string(port) + " with fd " + std::to_string(_ls_fd.get_fd()));
 }
 
 // Destructor
 ListeningSocket::~ListeningSocket(void)
 {
-	std::cerr << colour::YELLOW << "[ListeningSocket] " << colour::RESET << "destructor called" << std::endl;
+	debug(colour::YELLOW, "ListeningSocket", "destructor called");
 }
 
 // Getters and Setters

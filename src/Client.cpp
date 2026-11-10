@@ -1,15 +1,16 @@
 #include "Client.hpp"
+#include "debug.hpp"
 
 // Constructors
 Client::Client(ConnectedSocket socket) : _socket(std::move(socket))
 {
-	std::cerr << colour::BRIGHT_BLUE << "[Client] " << colour::RESET << "constructor called: client fd " << _socket.get_fd() << std::endl;
+	debug(colour::BRIGHT_BLUE, "Client", "constructor called: client fd " + std::to_string(_socket.get_fd()));
 }
 
 // Destructor
 Client::~Client(void)
 {
-	std::cerr << colour::BRIGHT_BLUE << "[Client] " << colour::RESET << "destructor called: client fd " << _socket.get_fd() << std::endl;
+	debug(colour::BRIGHT_BLUE, "Client", "destructor called: client fd " + std::to_string(_socket.get_fd()));
 }
 
 // Getters and Setters
