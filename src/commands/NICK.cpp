@@ -3,8 +3,6 @@
 
 void Commands::NICK(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-	print_info(client, "NICK", args);
-
 	// no nickname given: "NICK" or "NICK :"
 	if (args.empty() || args[0].empty())
 	{
@@ -35,6 +33,7 @@ void Commands::NICK(Client &client, const std::vector<std::string>& args, Comman
 	}
 	
 	// set the nickname for the client
+	debug(colour::CYAN, "NICK", "fd " + std::to_string(client.get_fd()) + ": nickname " + (client.get_nickname().empty() ? "set to " : "changed from " + client.get_nickname() + " to ") + args[0]);
 	client.set_nickname(args[0]);
 	try_register(client, stream);
 }

@@ -3,8 +3,6 @@
 
 void Commands::QUIT(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "QUIT", args);
-
     // QUIT [:reason]
     std::string reason = "Quit";
     if (!args.empty() && !args[0].empty())
@@ -15,5 +13,6 @@ void Commands::QUIT(Client &client, const std::vector<std::string>& args, Comman
 
     // goodbye message to the client itself; the connection closes after it has been sent
     stream.parameter("ERROR").message("Closing link (" + reason + ")").finish();
+	debug(colour::CYAN, "QUIT", client.get_nickname() + " quit (" + reason + ")");
     client.mark_for_close();
 }

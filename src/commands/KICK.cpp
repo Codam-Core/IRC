@@ -3,8 +3,6 @@
 
 void Commands::KICK(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "KICK", args);
-
     // KICK <channel> <nick> [:reason]
     if (args.size() < 2)
     {
@@ -53,5 +51,6 @@ void Commands::KICK(Client &client, const std::vector<std::string>& args, Comman
     kick_stream.send_to_channel(*channel);
 
     // remove the target LAST: this can erase the channel, so don't use `channel` after this line
+	debug(colour::CYAN, "KICK", client.get_nickname() + " kicked " + target->get_nickname() + " from " + channel->get_name() + " (" + reason + ")");
     _server.remove_client_from_channel(*target, *channel);
 }

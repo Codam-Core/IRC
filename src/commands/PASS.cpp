@@ -3,7 +3,6 @@
 
 void Commands::PASS(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "PASS", args);
     if (args.empty())
     {
         not_enough_parameters(client, stream);
@@ -19,7 +18,9 @@ void Commands::PASS(Client &client, const std::vector<std::string>& args, Comman
     if (!_server.check_password(client, args[0]))
     {
         stream.prefix().code(464).client(client).message("Password incorrect").finish();
+		debug(colour::CYAN, "PASS", "fd " + std::to_string(client.get_fd()) + ": wrong password, closing");
         return;
     }
     // no repsonse is send when a password is accepted.
+	debug(colour::CYAN, "PASS", "fd " + std::to_string(client.get_fd()) + ": password ok");
 }
