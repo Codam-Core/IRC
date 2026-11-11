@@ -39,8 +39,9 @@ class Commands
         void PASS(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void USER(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void MODE(Client &client, const std::vector<std::string>& args, CommandStream& stream);
-
-        // general helper functions
+		void PING(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        
+		// general helper functions
         void not_enough_parameters(Client &client, CommandStream& stream);
         void print_info(Client &client, const std::string& cmd, const std::vector<std::string>& args);
         

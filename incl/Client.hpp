@@ -12,7 +12,7 @@ class Client
 		std::string		_nickname;
 		std::string		_username;
 		std::string		_realname;
-		std::string		_hostname;
+		std::string		_hostname = "localhost";
 		std::string     _password;
 		bool			_is_registered = false;
 		bool 			_close_after_send = false;   // "close me as soon as everything is sent"

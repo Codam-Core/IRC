@@ -273,7 +273,7 @@ bool Server::nickname_taken(const std::string &nickname) const
 {
 	for (auto& [fd, client] : _clients)
 	{
-		if (client.get_nickname() == nickname)
+		if (to_lower(client.get_nickname()) == to_lower(nickname))
 			return (true);
 	}
 	return (false);
@@ -283,7 +283,7 @@ Client* Server::fetch_client_by_nickname(const std::string &nickname)
 {
 	for (auto& [fd, other] : _clients)
 	{
-		if (other.get_nickname() == nickname)
+		if (to_lower(other.get_nickname()) == to_lower(nickname))
 		{
 			return (&other);
 		}

@@ -42,7 +42,7 @@ class Server
 		bool read_from_client(Client &client); // return false? -> client disconnected
 		void parse_command(Client &client, const std::string &line);
 		void remove_client_from_all_channels(Client &client);
-		
+
 		public:
 		// Constructors
 		Server(const std::string &port, const std::string &password);
@@ -64,7 +64,7 @@ class Server
 		bool already_registered(Client &client, const std::string& user_name) const;
 		Client* fetch_client_by_nickname(const std::string &nickname);
 		void remove_client_from_channel(Client &client, Channel& channel);
-		
+
 		// Public member functions
 		void update();
 
