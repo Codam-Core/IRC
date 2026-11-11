@@ -1,0 +1,146 @@
+# Logging in for MODE
+NICK modetest
+PASS test
+USER modetest 0 * :modetest
+CAP LS
+CAP END
+
+# Basic mode operations
+JOIN #mode1
+
+MODE #mode1
+MODE #mode1 +i
+MODE #mode1
+MODE #mode1 +i
+MODE #mode1 -i
+MODE #mode1 -i
+MODE #mode1 +t
+MODE #mode1 -t
+MODE #mode1 +it
+MODE #mode1
+MODE #mode1 -it
+MODE #mode1
+
+# Channel key
+JOIN #mode2
+
+MODE #mode2 +k secret
+MODE #mode2
+MODE #mode2 +k another
+MODE #mode2
+MODE #mode2 -k
+MODE #mode2
+MODE #mode2 -k
+MODE #mode2 +k third
+MODE #mode2 +k third
+MODE #mode2 -k
+
+JOIN #mode3
+
+MODE #mode3 +l 1
+MODE #mode3
+MODE #mode3 +l 2
+MODE #mode3 +l 2
+MODE #mode3 +l 999
+MODE #mode3
+MODE #mode3 -l
+MODE #mode3 -l
+MODE #mode3
+
+JOIN #mode4
+
+MODE #mode4 +l
+MODE #mode4 +l 0
+MODE #mode4 +l -1
+MODE #mode4 +l -10
+MODE #mode4 +l text
+MODE #mode4 +l 1.5
+MODE #mode4 +l +10
+MODE #mode4 +l 000
+MODE #mode4 +l 001
+MODE #mode4 +l 00010
+MODE #mode4 +l 2147483647
+MODE #mode4 +l 2147483648
+MODE #mode4 +l 999999999999999999999999
+MODE #mode4
+
+JOIN #mode5
+
+MODE #mode5 +ik secret
+MODE #mode5
+MODE #mode5 +kl another 20
+MODE #mode5
+MODE #mode5 +lk 30 third
+MODE #mode5
+MODE #mode5 -kl
+MODE #mode5
+MODE #mode5 +itkl fourth 40
+MODE #mode5
+MODE #mode5 -itkl
+MODE #mode5
+
+JOIN #mode6
+
+MODE #mode6 +i-i
+MODE #mode6 +i-i+i
+MODE #mode6 -i+i-i
+MODE #mode6 +t-t+t-t
+MODE #mode6 +it-it
+MODE #mode6 -it+it
+MODE #mode6
+
+JOIN #mode7
+
+MODE #mode7 +kk first second
+MODE #mode7
+MODE #mode7 +kkk third fourth fifth
+MODE #mode7
+MODE #mode7 +ll 10 20
+MODE #mode7
+MODE #mode7 +lkl 30 sixth 40
+MODE #mode7
+MODE #mode7 -kkll
+MODE #mode7
+
+JOIN #mode8
+
+MODE #mode8 +ik
+MODE #mode8
+MODE #mode8 +ki secret
+MODE #mode8
+MODE #mode8 +kl secret
+MODE #mode8
+MODE #mode8 +lk 10
+MODE #mode8
+MODE #mode8 +kk secret
+MODE #mode8
+MODE #mode8 +ll 10
+MODE #mode8
+MODE #mode8 +klt secret
+MODE #mode8
+
+JOIN #mode9
+
+MODE #mode9 +
+MODE #mode9 -
+MODE #mode9 ++i
+MODE #mode9 --i
+MODE #mode9 +++i
+MODE #mode9 ---i
+MODE #mode9 +-+i
+MODE #mode9 -+-i
+MODE #mode9 ++++it
+MODE #mode9 ----it
+MODE #mode9
+
+JOIN #mode10
+
+MODE #mode10 +x
+MODE #mode10 +ix
+MODE #mode10 +xt
+MODE #mode10 +itx
+MODE #mode10 +i?
+MODE #mode10 +?i
+MODE #mode10 +ikx secret
+MODE #mode10 +xl 10
+MODE #mode10
