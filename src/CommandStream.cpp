@@ -86,6 +86,26 @@ CommandStream& CommandStream::command()
     return *this;
 }
 
+CommandStream& CommandStream::get_member_names(const Channel& channel)
+{
+    // like message(): the list is the last parameter, so it starts with ':'
+    *this << ":";
+
+    bool first = true;
+    for (auto &[member, is_operator] : channel.get_members())
+    {
+        if (!first)
+            *this << " ";
+        first = false;
+
+        if (is_operator)
+            *this << "@";
+        *this << member->get_nickname();
+    }
+    return *this;
+}
+
+
 void CommandStream::finish()
 {
     // if the stringstream is empty, don't add a CRLF and don't push it to the responses vector
@@ -121,3 +141,5 @@ void CommandStream::send_to_channel(Channel &channel, Client *except)
 		}
 	}
 }
+
+

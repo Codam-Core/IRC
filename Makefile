@@ -5,12 +5,13 @@ CXX			:= c++
 CXXFLAGS	:= -std=c++23 -Wall -Wextra 
 # CXXFLAGS	+= -Werror -g -fsanitize=address
 
+DEPFLAGS	:= -MMD -MP
+
 SRC_DIR		:= src
 INCL_DIR	:= incl
 OBJ_DIR		:= obj
 TESTS_DIR	:= tests
 
-INCL		:=	$(notdir $(wildcard $(INCL_DIR)/*.hpp))
 SRCS 		:=  $(patsubst $(SRC_DIR)/%,%,$(wildcard $(SRC_DIR)/*.cpp $(SRC_DIR)/commands/*.cpp))
 TEST_SRCS	:=	$(notdir $(wildcard $(TESTS_DIR)/*.cpp))
 
@@ -22,7 +23,6 @@ OBJS		:= $(SRCS:%.cpp=$(OBJ_DIR)/%.o)
 TEST_OBJS   := $(TEST_APP_SRCS:%.cpp=$(OBJ_DIR)/%.o)
 TEST_OBJS   += $(TEST_SRCS:%.cpp=$(OBJ_DIR)/tests/%.o)
 
-HEADERS		:= $(INCL:%=$(INCL_DIR)/%)
 
 # Default rule (compiles the program)
 all: $(NAME)
@@ -44,16 +44,16 @@ $(TEST_NAME): $(TEST_OBJS)
 	@printf "\r\033[K ✔          Tests ready!\n"
 
 # Compiling source files into object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	@printf "\r\033[K compiling  $(notdir $<)"
-	@$(CXX) $(CXXFLAGS) -I $(INCL_DIR) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(DEPFLAGS) -I $(INCL_DIR) -c $< -o $@
 
 # Compile test source files
-$(OBJ_DIR)/tests/%.o: $(TESTS_DIR)/%.cpp $(HEADERS)
+$(OBJ_DIR)/tests/%.o: $(TESTS_DIR)/%.cpp
 	@mkdir -p $(dir $@)
 	@printf "\r\033[K compiling  $(notdir $<)"
-	@$(CXX) $(CXXFLAGS) -I $(INCL_DIR) -I $(TESTS_DIR) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(DEPFLAGS) -I $(INCL_DIR) -I $(TESTS_DIR) -c $< -o $@
 
 # Cleaning compiled files
 clean:
@@ -76,3 +76,6 @@ vrun: all
 	valgrind --track-fds=yes ./$(NAME) 6667 secret
 
 .PHONY: all test clean fclean re run vrun
+
+# read the header dependencies the compiler wrote (-MMD); '-' = no error if they don't exist yet
+-include $(OBJS:.o=.d) $(TEST_OBJS:.o=.d)

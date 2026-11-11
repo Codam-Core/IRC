@@ -95,7 +95,12 @@ bool static handle_limit_mode(Client& client, Channel* channel, bool adding, std
         // Try to convert the argument to an unsigned long and set the limit; if it fails, send an error message.
         try
         {
+            // a limit must be a positive number: stoul would wrap "-5" around to a huge number, and 0 locks everyone out
+            if (mode_arguments.front()[0] == '-')
+                throw std::invalid_argument("negative limit");
             size_t limit = std::stoul(mode_arguments.front());
+            if (limit == 0)
+                throw std::invalid_argument("limit 0");
             channel->set_limit(limit);
         }
         catch (const std::exception& e)
