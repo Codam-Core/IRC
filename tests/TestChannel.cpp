@@ -1,39 +1,55 @@
 #include "Channel.hpp"
+#include "Client.hpp"
 #include "cassert"
+
+// a Client needs a real fd; an unconnected socket is enough for testing
+static Client make_client()
+{
+    return Client(ConnectedSocket(Fd(socket(AF_INET, SOCK_STREAM, 0))));
+}
 
 void test_channel()
 {
+    Client op = make_client();
+    Client user = make_client();
+    Channel channel("#testing");
 
-    Channel channel("TESTING");
-    std::string user("IM A REGULAR USER");
-    std::string operator_user("IM A operator USER");
+    // members and operators
+    channel.add_member(&op, true);
+    channel.add_member(&user, false);
+    assert(channel.member_count() == 2);
+    assert(channel.is_member(&op) && channel.is_member(&user));
+    assert(channel.is_operator(&op));
+    assert(!channel.is_operator(&user));
 
-    channel.add_operator(operator_user);
-    channel.add_user(user);
+    channel.set_operator(&user, true);
+    assert(channel.is_operator(&user));
 
-    // the user count is expected to be 2
-    assert(channel.user_count() == 2);
+    // topic
+    channel.set_topic("BEST CHANNEL EFFAH");
+    assert(channel.get_topic() == "BEST CHANNEL EFFAH");
 
-    std::string topic ("BEST CHANNEL EFFAH");
+    // modes
+    channel.set_mode(Channel::TOPIC_LOCK);
+    channel.set_mode(Channel::INVITE_ONLY);
+    assert(channel.has_mode(Channel::TOPIC_LOCK) && channel.has_mode(Channel::INVITE_ONLY));
+    channel.unset_mode(Channel::TOPIC_LOCK);
+    assert(!channel.has_mode(Channel::TOPIC_LOCK) && channel.has_mode(Channel::INVITE_ONLY));
 
-    // set the topic of the channel this can only be done by the operator user
-    channel.set_topic(operator_user, topic);
+    // invites
+    channel.add_invite(&user);
+    assert(channel.is_invited(&user));
+    channel.remove_invite(&user);
+    assert(!channel.is_invited(&user));
 
-    std::cout << "The topic of the channel is = " << channel.get_topic() << std::endl;
+    // key and limit
+    channel.set_key("secret");
+    assert(channel.get_key() == "secret");
+    channel.set_limit(5);
+    assert(channel.get_limit() == 5);
 
-    try 
-    {
-        channel.set_mode(Channel::modes::TOPIC_LOCK);
-        channel.set_topic(user, "THIS should not be possible");
-    } 
-    catch (std::exception &e) {}
-
-    // topic should bot be changed
-    assert(channel.get_topic() == topic);
-
-    channel.remove_operator(operator_user);
-    channel.remove_user(user);
-
-    // ths user count is expected to be 0
-    assert(channel.user_count() == 0);
+    // removing
+    channel.remove_member(&op);
+    channel.remove_member(&user);
+    assert(channel.member_count() == 0);
 }
