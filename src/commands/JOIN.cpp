@@ -53,7 +53,31 @@ void Commands::JOIN(Client &client, const std::vector<std::string>& args, Comman
 	channel.remove_invite(&client);
 
 	// send message to everyone in the channel that someone joined
+	
+	// What a client expects after its JOIN line
+	// :liath!liath@localhost JOIN :#a                 ← to everyone (you have this)
+	// :irc.JL 332 liath #a :the topic                 ← only if there's a topic
+	// :irc.JL 353 liath = #a :@liath jisse            ← who's in it, @ = operator
+	// :irc.JL 366 liath #a :End of /NAMES list        ← end of the list
+
 	CommandStream join_stream("JOIN", _server);
 	join_stream.prefix(client).command().message(channel.get_name()).finish();
 	join_stream.send_to_channel(channel);
+
+	// the topic, only if there is one
+	if (!channel.get_topic().empty())
+		stream.prefix().code(332).client(client).parameter(channel.get_name()).message(channel.get_topic()).finish();
+
+	// the names list: everyone in the channel, '@' in front of operators
+	std::string names;
+	for (auto &[member, is_operator] : channel.get_members())
+	{
+		if (!names.empty())
+			names += " ";
+		if (is_operator)
+			names += "@";
+		names += member->get_nickname();
+	}
+	stream.prefix().code(353).client(client).parameter("=").parameter(channel.get_name()).message(names).finish();
+	stream.prefix().code(366).client(client).parameter(channel.get_name()).message("End of /NAMES list").finish();
 }
