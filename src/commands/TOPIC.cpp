@@ -3,8 +3,6 @@
 
 void Commands::TOPIC(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "TOPIC", args);
-
     if (args.empty())
     {
         not_enough_parameters(client, stream);
@@ -43,6 +41,7 @@ void Commands::TOPIC(Client &client, const std::vector<std::string>& args, Comma
 
     // set the new topic
     channel->set_topic(args[1]);
+	debug(colour::CYAN, "TOPIC", client.get_nickname() + " set the topic of " + channel->get_name() + " to: " + args[1]);
 
     // send a confirmation to the client who set the topic
     CommandStream broadcastStream("TOPIC", _server);

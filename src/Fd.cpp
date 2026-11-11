@@ -1,14 +1,14 @@
 #include "Fd.hpp"
+#include "debug.hpp"
 
 // Constructors
 // Fd::Fd(void) : _fd(-1)
 // {
-// 	std::cerr << colour::BLUE << "[Fd] " << colour::RESET << "default constructor called: empty (fd -1)" << std::endl;
 // }
 
 Fd::Fd(int fd) : _fd(fd)
 {
-	std::cerr << colour::BLUE << "[Fd] " << colour::RESET << "constructor called: now owns fd " << _fd << std::endl;
+	debug(colour::BLUE, "Fd", "constructor called: now owns fd " + std::to_string(_fd));
 }
 
 // Move constructor
@@ -16,7 +16,7 @@ Fd::Fd(Fd&& other) noexcept : _fd(other._fd)
 {
 	other._fd = -1; // the old box is now empty, so its destructor won't close our fd
 
-	std::cerr << colour::BLUE << "[Fd] " << colour::RESET << "move constructor called: new object now holds fd " << _fd << std::endl;
+	debug(colour::BLUE, "Fd", "move constructor called: new object now holds fd " + std::to_string(_fd));
 }
 
 // Destructor
@@ -24,7 +24,7 @@ Fd::~Fd(void)
 {
 	if (_fd != -1)
 	{
-		std::cerr << colour::BLUE << "[Fd] " << colour::RESET << "destructor called: fd " << _fd << " is closed" << std::endl;
+		debug(colour::BLUE, "Fd", "destructor called: fd " + std::to_string(_fd) + " is closed");
 		close(_fd);
 	}
 }
@@ -48,7 +48,7 @@ Fd& Fd::operator=(Fd&& other) noexcept
 		this->_fd = other._fd;
 		other._fd = -1;
 
-		std::cerr << colour::BLUE << "[Fd] " << colour::RESET << "move assignment called: fd " << old_fd << " is now closed and holds fd " << this->_fd << std::endl;
+		debug(colour::BLUE, "Fd", "move assignment called: fd " + std::to_string(old_fd) + " is now closed and holds fd " + std::to_string(this->_fd));
 
 	}
 	return (*this);

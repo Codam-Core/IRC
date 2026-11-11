@@ -1,4 +1,5 @@
 #include "ConnectedSocket.hpp"
+#include "debug.hpp"
 
 // Constructors
 ConnectedSocket::ConnectedSocket(Fd fd) : _cs_fd(std::move(fd))
@@ -6,13 +7,13 @@ ConnectedSocket::ConnectedSocket(Fd fd) : _cs_fd(std::move(fd))
 	if (fcntl(_cs_fd.get_fd(), F_SETFL, O_NONBLOCK) == -1)
 		throw std::runtime_error(std::string(FAILED_TO_SET_NONBLOCKING_MSG) + std::strerror(errno));
 
-	std::cerr << colour::CYAN << "[ConnectedSocket] " << colour::RESET << "constructor called: client fd " << _cs_fd.get_fd() << " is non-blocking" << std::endl;
+	debug(colour::CYAN, "ConnectedSocket", "constructor called: client fd " + std::to_string(_cs_fd.get_fd()) + " is non-blocking");
 }
 
 // Destructor
 ConnectedSocket::~ConnectedSocket(void)
 {
-	std::cerr << colour::CYAN << "[ConnectedSocket] " << colour::RESET << "destructor called; client fd was " << _cs_fd.get_fd() << std::endl;
+	debug(colour::CYAN, "ConnectedSocket", "destructor called; client fd was " + std::to_string(_cs_fd.get_fd()));
 }
 
 // Getters and Setters
@@ -58,8 +59,11 @@ void ConnectedSocket::queue_send(const std::string &message)
 
 ssize_t ConnectedSocket::send_data()
 {
-	// std::cout << "sending " << std::string(_send_buffer.data()) << std::endl;
-	std::cout << colour::GREEN << "[Send] " << colour::RESET << "fd " << _cs_fd.get_fd() << ": " << std::string(_send_buffer.data());
+	// debug: what we're about to send, without the trailing \r\n (debug() adds its own newline)
+	std::string pending = _send_buffer;
+	while (!pending.empty() && (pending.back() == '\n' || pending.back() == '\r'))
+		pending.pop_back();
+	debug(colour::GREEN, "Send", "fd " + std::to_string(_cs_fd.get_fd()) + ": " + pending);
 
 	ssize_t bytes = send(_cs_fd.get_fd(), _send_buffer.data(), _send_buffer.size(), MSG_NOSIGNAL);
 	if (bytes > 0)

@@ -29,7 +29,6 @@ void Commands::JOIN(Client &client, const std::vector<std::string>& args, Comman
 	}
 }
 
-
 void Commands::join_channel(Client &client, const std::string &name, const std::string &key, CommandStream& stream)
 {
 	// check if the channel name starts with #
@@ -73,6 +72,8 @@ void Commands::join_channel(Client &client, const std::string &name, const std::
 	// join; if it's a new channel, the client becomes operator. an invite can only be used once
 	channel.add_member(&client, new_channel);
 	channel.remove_invite(&client);
+
+	debug(colour::CYAN, "JOIN", client.get_nickname() + " joined " + channel.get_name() + (new_channel ? " (new channel, operator)" : ""));
 
 	// send message to everyone in the channel that someone joined
 	

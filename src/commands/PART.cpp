@@ -4,8 +4,6 @@
 // PART #a,#b [:reason]: leave every channel in the list
 void Commands::PART(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "PART", args);
-
     std::vector<std::string> channels;
     if (!args.empty())
         channels = split(args[0], ',');
@@ -48,5 +46,6 @@ void Commands::part_channel(Client &client, const std::string &name, const std::
     part_stream.send_to_channel(*channel);
 
     // remove LAST: this can erase the channel, so don't use `channel` after this line
+	debug(colour::CYAN, "PART", client.get_nickname() + " left " + channel->get_name());
     _server.remove_client_from_channel(client, *channel);
 }

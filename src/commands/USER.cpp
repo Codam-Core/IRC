@@ -3,8 +3,6 @@
 
 void Commands::USER(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "USER", args);
-
     // check whether the client gave the required arguments
     if (args.size() < 4)
     {
@@ -24,5 +22,6 @@ void Commands::USER(Client &client, const std::vector<std::string>& args, Comman
     // args[1] is the user mode bitmask that we don't support
     // args[2] is an unused parameter
     client.set_realname(args[3]);
+	debug(colour::CYAN, "USER", "fd " + std::to_string(client.get_fd()) + ": username " + args[0] + ", realname " + args[3]);
 	try_register(client, stream);
 }

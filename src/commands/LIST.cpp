@@ -10,8 +10,6 @@ static void list_channel(Client &client, const Channel &channel, CommandStream &
 // LIST: all channels. LIST #a,#b: only those channels
 void Commands::LIST(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "LIST", args);
-
     if (args.empty() || args[0].empty())
     {
         for (auto &[name, channel] : _server.get_channels())

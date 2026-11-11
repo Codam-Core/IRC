@@ -5,7 +5,6 @@
 
 void Commands::CAP(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "CAP", args);
     // if the client didn't provide any arguments, send back an error message
     if (args.empty())
     {

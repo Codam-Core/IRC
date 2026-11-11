@@ -1,4 +1,5 @@
 #include "Epoll.hpp"
+#include "debug.hpp"
 
 // Constructors
 Epoll::Epoll(void) : _epoll_fd(epoll_create1(0))
@@ -6,13 +7,13 @@ Epoll::Epoll(void) : _epoll_fd(epoll_create1(0))
 	if (_epoll_fd.get_fd() == -1)
 		throw std::runtime_error(std::string(FAILED_TO_CREATE_EPOLL_MSG) + std::strerror(errno));
 
-	std::cerr << colour::GREEN << "[Epoll] " << colour::RESET << "constructor called: epoll fd " << _epoll_fd.get_fd() << std::endl;
+	debug(colour::GREEN, "Epoll", "constructor called: epoll fd " + std::to_string(_epoll_fd.get_fd()));
 }
 
 // Destructor
 Epoll::~Epoll(void)
 {
-	std::cerr << colour::GREEN << "[Epoll] " << colour::RESET << "destructor called" << std::endl;
+	debug(colour::GREEN, "Epoll", "destructor called");
 }
 
 // Getters and Setters
@@ -31,13 +32,13 @@ void Epoll::add(int fd)
 	if (epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_ADD, fd, &event) == -1)
 		throw std::runtime_error(std::string(FAILED_TO_ADD_FD_TO_EPOLL_MSG) + std::strerror(errno));
 
-	std::cerr << colour::GREEN << "[Epoll] " << colour::RESET << "added fd " << fd << std::endl;
+	debug(colour::GREEN, "Epoll", "added fd " + std::to_string(fd));
 }
 
 void Epoll::remove(int fd)
 {
 	epoll_ctl(_epoll_fd.get_fd(), EPOLL_CTL_DEL, fd, nullptr);
-	std::cerr << colour::GREEN << "[Epoll] " << colour::RESET << "removed fd " << fd << std::endl;
+	debug(colour::GREEN, "Epoll", "removed fd " + std::to_string(fd));
 }
 
 int Epoll::wait(epoll_event *events, int max_events)

@@ -152,7 +152,6 @@ bool static handle_operator_mode(Client& client, Channel* channel, bool adding, 
 void Commands::MODE(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
     std::queue<std::string> mode_arguments;
-    print_info(client, "MODE", args);
 
     if (args.size() < 1)
     {

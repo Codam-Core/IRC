@@ -45,6 +45,7 @@ void Commands::send_privmsg(Client &client, const std::string &target, const std
 			stream.prefix().code(404).client(client).parameter(target).message("Cannot send to channel").finish();
 			return;
 		}
+		debug(colour::CYAN, "PRIVMSG", client.get_nickname() + " -> " + channel->get_name() + ": " + text);
 		msg_stream.send_to_channel(*channel, &client);
 		return;
 	}
@@ -56,5 +57,6 @@ void Commands::send_privmsg(Client &client, const std::string &target, const std
 		stream.prefix().code(401).client(client).parameter(target).message("No such nick/channel").finish();
 		return;
 	}
+	debug(colour::CYAN, "PRIVMSG", client.get_nickname() + " -> " + receiver->get_nickname() + ": " + text);
 	msg_stream.send(*receiver);
 }

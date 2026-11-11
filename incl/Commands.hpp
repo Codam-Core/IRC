@@ -1,6 +1,7 @@
 #pragma once
 #include "includes.hpp"
 #include "colours.hpp"
+#include "debug.hpp"
 #include "CommandStream.hpp"
 
 // to prevent circular dependency, we forward declare the Server class here, and include it in Commands.cpp

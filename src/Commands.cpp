@@ -36,21 +36,23 @@ void Commands::try_register(Client &client, CommandStream& stream)
     {
         stream.prefix().code(464).client(client).message("Password incorrect").finish();
         client.mark_for_close();
+		debug(colour::CYAN, "Register", "fd " + std::to_string(client.get_fd()) + ": NICK and USER done, but no password: closing");
         return;
     }
 
     client.set_registered();
+	debug(colour::CYAN, "Register", "fd " + std::to_string(client.get_fd()) + ": registered as " + client.get_nickname() + "!" + client.get_username() + "@" + client.get_hostname());
     stream.prefix().code(1).client(client).message("Welcome to the IRC network " + client.get_nickname() + "!" + client.get_username() + "@" + client.get_hostname()).finish();
 }
 
 void Commands::print_info(Client &client, const std::string& cmd, const std::vector<std::string>& args)
 {
-    std::cout << colour::BLUE << cmd << " command called from fd " << client.get_fd() << " with arguments ";
-    for (auto &argument : args)
-    {
-        std::cout << argument << ", ";
-    }  
-    std::cout << colour::RESET << std::endl;
+	std::string line = cmd;
+	for (auto &argument : args)
+		line += " " + argument;
+
+	std::string who = client.get_nickname().empty() ? "*" : client.get_nickname();
+	debug(colour::BLUE, "Command", "fd " + std::to_string(client.get_fd()) + " (" + who + "): " + line);
 }
 
 void Commands::register_mode_change(const std::string& mode, bool adding, std::optional<std::string> additional_argument)
@@ -91,6 +93,12 @@ void Commands::broadcast_mode_changes(Channel* channel, Client& client)
     // broadcase the mode changes to all members of the channel. including the requesting client.
     stream.send_to_channel(*channel);
 
+	// debug loopie
+	std::string changes = mode_str;
+    for (auto &param : mode_params)
+        changes += " " + param;
+    debug(colour::CYAN, "MODE", client.get_nickname() + " changed the modes of " + channel->get_name() + ": " + changes);
+
 	// start empty for the next MODE command
     _mode_changes.clear();
 }
@@ -99,6 +107,8 @@ void Commands::handle_command(Client &client, const std::string& cmd, const std:
 {
     // create a command stream with the command name
     CommandStream stream(cmd, _server);
+
+    print_info(client, cmd, args);
 
     // fetch the cmd pair
     auto it = _commands.find(cmd);

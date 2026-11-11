@@ -3,7 +3,6 @@
 
 void Commands::INVITE(Client &client, const std::vector<std::string>& args, CommandStream& stream)
 {
-    print_info(client, "INVITE", args);
     if (args.size() < 2)
     {
         not_enough_parameters(client, stream);
@@ -49,6 +48,7 @@ void Commands::INVITE(Client &client, const std::vector<std::string>& args, Comm
 
     // add the target client to the channel's invited list
     channel->add_invite(target);
+	debug(colour::CYAN, "INVITE", client.get_nickname() + " invited " + target->get_nickname() + " to " + channel->get_name());
 
     // NOTIFY the target the client has invited them to the channel.
     stream.prefix().code(341).client(client).parameter(args[0]).parameter(args[1]).finish();
