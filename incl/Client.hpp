@@ -46,10 +46,11 @@ class Client
 		std::string get_password() const;
 		std::string get_realname() const;
 
-		
-		// Member functions
-		void mark_for_close();            // put the note on
-		bool is_marked_for_close() const; // is the note there?
+		bool is_registered() const;
+		void set_registered();
+
+		void mark_for_close();
+		bool is_marked_for_close() const;
 		
 		// Operator overloaders
 		bool operator==(const Client &other) const;

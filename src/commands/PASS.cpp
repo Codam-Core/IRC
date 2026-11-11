@@ -10,6 +10,12 @@ void Commands::PASS(Client &client, const std::vector<std::string>& args, Comman
         return;
     }
 
+	if (client.is_registered())
+    {
+        stream.prefix().code(462).client(client).message("You may not reregister").finish();
+        return;
+    }
+
     if (!_server.check_password(client, args[0]))
     {
         stream.prefix().code(464).client(client).message("Password incorrect").finish();

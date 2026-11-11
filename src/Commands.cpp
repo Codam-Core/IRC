@@ -21,6 +21,24 @@ void Commands::not_enough_parameters(Client &client, CommandStream& stream)
     stream.prefix().code(461).client(client).command().message("Not enough parameters").finish();
 }
 
+void Commands::try_register(Client &client, CommandStream& stream)
+{
+    // already registered, or NICK / USER still missing: nothing to do yet
+    if (client.is_registered() || client.get_nickname().empty() || client.get_username().empty())
+        return;
+
+    // NICK and USER are done, but no (correct) PASS was given
+    if (client.get_password().empty())
+    {
+        stream.prefix().code(464).client(client).message("Password incorrect").finish();
+        client.mark_for_close();
+        return;
+    }
+
+    client.set_registered();
+    stream.prefix().code(1).client(client).message("Welcome to the IRC network " + client.get_nickname() + "!" + client.get_username() + "@" + client.get_hostname()).finish();
+}
+
 void Commands::print_info(Client &client, const std::string& cmd, const std::vector<std::string>& args)
 {
     std::cout << colour::BLUE << cmd << " command called from fd " << client.get_fd() << " with arguments ";
@@ -82,6 +100,14 @@ void Commands::handle_command(Client &client, const std::string& cmd, const std:
     if (it == _commands.end())
     {
         std::cerr << colour::RED << "[Commands] " << colour::RESET << "unknown command: " << cmd << std::endl; // temp error message; later this becomes 421 ERR_UNKNOWNCOMMAND, sent back to that client.
+        return;
+    }
+
+	// before registration, only these commands are allowed
+    if (!client.is_registered() && cmd != "CAP" && cmd != "PASS" && cmd != "NICK" && cmd != "USER" && cmd != "PING")
+    {
+        stream.prefix().code(451).client(client).message("You have not registered").finish();
+        stream.send(client);
         return;
     }
 

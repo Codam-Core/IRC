@@ -291,20 +291,6 @@ Client* Server::fetch_client_by_nickname(const std::string &nickname)
 	return (nullptr);
 }
 
-bool Server::already_registered(Client &client, const std::string& user_name) const
-{
-	// check if the client is already registered by comparing its username with other registered clients
-	for (auto& [fd, registeredClients] : _clients)
-	{
-		if (registeredClients != client)
-			continue;
-
-		if (registeredClients.get_username() == user_name)
-			return (true);
-	}
-	return (false);
-}
-
 void Server::remove_client_from_channel(Client &client, Channel& channel)
 {
 	// remove the client from members and invites; 
