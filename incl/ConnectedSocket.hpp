@@ -18,6 +18,8 @@ class ConnectedSocket
 		static constexpr const char *FAILED_TO_SET_NONBLOCKING_MSG = "Failed to set client socket to non-blocking: ";
 
 	public:
+		static constexpr size_t MAX_LINE_LENGTH = 510; // IRC: max 512 bytes per message, including \r\n
+
 		// Constructors
 		ConnectedSocket(void) = delete;
 		explicit ConnectedSocket(Fd fd);
@@ -45,4 +47,3 @@ class ConnectedSocket
 		ssize_t send_data();
 		bool has_pending_send() const;
 };
-
