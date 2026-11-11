@@ -11,7 +11,8 @@ const std::map<Commands::Command, Commands::CommandFn> Commands::_commands = {
     {"TOPIC", &Commands::TOPIC},
     {"INVITE", &Commands::INVITE},
     {"PRIVMSG", &Commands::PRIVMSG},
-    {"PING", &Commands::PING}
+    {"PING", &Commands::PING},
+    {"KICK", &Commands::KICK}
 };
 
 Commands::Commands(Server& server) : _server(server) {};
