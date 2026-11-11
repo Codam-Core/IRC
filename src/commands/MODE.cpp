@@ -46,8 +46,8 @@ std::vector<std::pair<char, bool>> static parse_mode(const std::string& mode_str
 
 bool static set_or_unset_mode(Channel* channel, Channel::modes mode, bool adding)
 {
-    // true if the mode is already set to the desired state
-    bool changed = channel->has_mode(mode) == adding;
+    // true if the mode is NOT yet in the desired state, so it really changes
+    bool changed = channel->has_mode(mode) != adding;
 
     // apply the change either way since it doesn't affect the state if it's already set to the desired state
     if (adding)
@@ -61,7 +61,7 @@ bool static set_or_unset_mode(Channel* channel, Channel::modes mode, bool adding
 bool static handle_key_mode(Client& client, Channel* channel, bool adding, std::queue<std::string>& mode_arguments, CommandStream& stream)
 {
     // If adding a key, we need to ensure that a key argument is provided.
-    if (mode_arguments.empty())
+    if (adding && mode_arguments.empty())
     {
         stream.prefix().code(461).client(client).command().message("Not enough parameters for +k").finish();
         return false;
@@ -155,15 +155,9 @@ void Commands::MODE(Client &client, const std::vector<std::string>& args, Comman
         return;
     }
 
-    // Queue the mode arguments to process them in the order they were provided.
-    // Each argument corresponds to a mode that requires one.
-    if (args.size() > 2)
-    {
-        for (auto& arg : args)
-        {
-            mode_arguments.push(arg);
-        }
-    }
+    // queue the mode arguments: everything after the mode string (args[0] = channel, args[1] = modes)
+    for (size_t i = 2; i < args.size(); i++)
+        mode_arguments.push(args[i]);
 
     // fetch the channel from the server
     Channel* channel = _server.find_channel(args[0]);
@@ -213,20 +207,21 @@ void Commands::MODE(Client &client, const std::vector<std::string>& args, Comman
                 break;
             case 'k':
                 if (handle_key_mode(client, channel, adding, mode_arguments, stream))
-                    this->register_mode_change(std::string(1, mode), adding, mode_arguments.front());
-                mode_arguments.pop();
+                    this->register_mode_change(std::string(1, mode), adding, adding ? std::optional<std::string>(mode_arguments.front()) : std::nullopt);
+                if (!mode_arguments.empty())
+                    mode_arguments.pop();
                 break;
             case 'l':
                 if (handle_limit_mode(client, channel, adding, mode_arguments, stream))
                     this->register_mode_change(std::string(1, mode), adding, adding ? std::optional<std::string>(mode_arguments.front()) : std::nullopt);
-                if (adding)
+                if (adding && !mode_arguments.empty())
                     mode_arguments.pop();
                 break;
             case 'o':
                 if (handle_operator_mode(client, channel, adding, mode_arguments, stream, _server))
                     this->register_mode_change(std::string(1, mode), adding, mode_arguments.front());
-                mode_arguments.pop();
-                handle_operator_mode(client, channel, adding, mode_arguments, stream, _server);
+                if (!mode_arguments.empty())
+                    mode_arguments.pop();
                 break;
             default:
                 stream.prefix().code(472).client(client).parameter(std::string(1, mode)).message("is unknown mode char to me").finish();

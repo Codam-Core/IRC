@@ -87,6 +87,9 @@ void Commands::broadcast_mode_changes(Channel* channel, Client& client)
 
     // broadcase the mode changes to all members of the channel. including the requesting client.
     stream.send_to_channel(*channel);
+
+	// start empty for the next MODE command
+    _mode_changes.clear();
 }
 
 void Commands::handle_command(Client &client, const std::string& cmd, const std::vector<std::string>& args)
