@@ -12,7 +12,8 @@ const std::map<Commands::Command, Commands::CommandFn> Commands::_commands = {
     {"INVITE", &Commands::INVITE},
     {"PRIVMSG", &Commands::PRIVMSG},
     {"PING", &Commands::PING},
-    {"KICK", &Commands::KICK}
+    {"KICK", &Commands::KICK},
+    {"QUIT", &Commands::QUIT}
 };
 
 Commands::Commands(Server& server) : _server(server) {};
@@ -108,8 +109,8 @@ void Commands::handle_command(Client &client, const std::string& cmd, const std:
     }
 
 	// before registration, only these commands are allowed
-    if (!client.is_registered() && cmd != "CAP" && cmd != "PASS" && cmd != "NICK" && cmd != "USER" && cmd != "PING")
-    {
+	if (!client.is_registered() && cmd != "CAP" && cmd != "PASS" && cmd != "NICK" && cmd != "USER" && cmd != "PING" && cmd != "QUIT")
+	{
         stream.prefix().code(451).client(client).message("You have not registered").finish();
         stream.send(client);
         return;

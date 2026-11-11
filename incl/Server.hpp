@@ -63,6 +63,7 @@ class Server
 		bool nickname_taken(const std::string &nickname) const;
 		Client* fetch_client_by_nickname(const std::string &nickname);
 		void remove_client_from_channel(Client &client, Channel& channel);
+		void leave_all_channels(Client &client, const std::string &reason);
 
 		// Public member functions
 		void update();

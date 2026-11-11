@@ -41,6 +41,7 @@ class Commands
         void MODE(Client &client, const std::vector<std::string>& args, CommandStream& stream);
 		void PING(Client &client, const std::vector<std::string>& args, CommandStream& stream);
         void KICK(Client &client, const std::vector<std::string>& args, CommandStream& stream);
+        void QUIT(Client &client, const std::vector<std::string>& args, CommandStream& stream);
 
 		// general helper functions
         void not_enough_parameters(Client &client, CommandStream& stream);
@@ -61,5 +62,3 @@ class Commands
         std::vector<ModeChange> _mode_changes;
         Server& _server;
 };
-
-
