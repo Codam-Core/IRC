@@ -38,6 +38,13 @@ void Commands::join_channel(Client &client, const std::string &name, const std::
 		return;
 	}
 
+	// name is just "#"
+	if (name.size() < 2)
+	{
+		stream.prefix().code(403).client(client).parameter(name).message("No such channel").finish();
+		return;
+	}
+
 	// check if the channel already exsists
 	bool new_channel = _server.find_channel(name) == nullptr;
 
