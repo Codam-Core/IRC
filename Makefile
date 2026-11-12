@@ -2,7 +2,7 @@ NAME		:= ircserv
 TEST_NAME   := ircserv_test
 
 CXX			:= c++
-CXXFLAGS	:= -std=c++23 -Wall -Wextra 
+CXXFLAGS	:= -std=c++20 -Wall -Wextra 
 # CXXFLAGS	+= -Werror -g -fsanitize=address
 
 DEPFLAGS	:= -MMD -MP
