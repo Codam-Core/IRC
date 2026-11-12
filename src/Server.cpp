@@ -160,7 +160,6 @@ void Server::disconnect_client(Client &client)
 	// tell the others (if they didn't QUIT already) and leave all channels
 	leave_all_channels(client, "Connection closed");
 
-
 	int fd = client.get_fd();
 	_epoll.remove(fd);
 	_clients.erase(fd);

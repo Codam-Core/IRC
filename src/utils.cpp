@@ -28,7 +28,7 @@ std::vector<std::string> split(const std::string &text, char delimiter)
 	return (parts);
 }
 
-// RFC 2812: a letter or special first, then letters, digits, specials or '-'
+// a letter or special first, then letters, digits, specials or '-'
 bool is_valid_nickname(const std::string &nickname)
 {
 	const std::string specials = "[]\\`_^{|}";
