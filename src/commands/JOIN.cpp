@@ -31,15 +31,8 @@ void Commands::JOIN(Client &client, const std::vector<std::string>& args, Comman
 
 void Commands::join_channel(Client &client, const std::string &name, const std::string &key, CommandStream& stream)
 {
-	// check if the channel name starts with #
-	if (name.empty() || name.front() != '#')
-	{
-		stream.prefix().code(403).client(client).parameter(name).message("No such channel").finish();
-		return;
-	}
-
-	// name is just "#"
-	if (name.size() < 2)
+	// check if the channel name is empty || doesn't starts with # || is only #
+	if (name.empty() || name.front() != '#' || name.size() < 2)
 	{
 		stream.prefix().code(403).client(client).parameter(name).message("No such channel").finish();
 		return;
