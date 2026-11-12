@@ -131,5 +131,3 @@ void Channel::set_topic(const std::string &topic)
 {
     _topic = topic;
 }
-
-

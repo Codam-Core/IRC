@@ -1,0 +1,1 @@
+{ printf 'PASS secret\r\nNICK flooder\r\nUSER f 0 * :f\r\n'; for i in $(seq 1 50000); do printf 'PRIVMSG liath :floooood %d\r\n' "$i"; done; sleep 2; } | nc 127.0.0.1 6667

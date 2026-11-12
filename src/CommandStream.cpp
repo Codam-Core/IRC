@@ -105,7 +105,6 @@ CommandStream& CommandStream::get_member_names(const Channel& channel)
     return *this;
 }
 
-
 void CommandStream::finish()
 {
     // if the stringstream is empty, don't add a CRLF and don't push it to the responses vector
@@ -141,5 +140,3 @@ void CommandStream::send_to_channel(Channel &channel, Client *except)
 		}
 	}
 }
-
-

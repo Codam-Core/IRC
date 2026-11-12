@@ -9,7 +9,6 @@ static void handle_signal(int signal)
 	g_stop = 1;
 }
 
-
 int main(int argc, char **argv)
 {
 	if (argc != 3)

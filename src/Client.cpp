@@ -111,4 +111,3 @@ bool Client::operator!=(const Client &other) const
 	else
 		return (false);
 }
-
