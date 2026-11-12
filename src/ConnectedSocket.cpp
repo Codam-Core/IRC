@@ -54,16 +54,17 @@ bool ConnectedSocket::get_line(std::string &line)
 
 void ConnectedSocket::queue_send(const std::string &message)
 {
+	// std::cout << "Message queued for fd " << _cs_fd.get_fd() << ": " << message << std::endl;
 	_send_buffer.append(message);
 }
 
 ssize_t ConnectedSocket::send_data()
 {
-	// debug: what we're about to send, without the trailing \r\n (debug() adds its own newline)
+	// debug:  we're about to send, without the trailing \r\n (debug() adds its own newline)
 	std::string pending = _send_buffer;
 	while (!pending.empty() && (pending.back() == '\n' || pending.back() == '\r'))
 		pending.pop_back();
-	debug(colour::GREEN, "Send", "fd " + std::to_string(_cs_fd.get_fd()) + ": " + pending);
+	// debug(colour::GREEN, "Send", "fd " + std::to_string(_cs_fd.get_fd()) + ": " + pending);
 
 	ssize_t bytes = send(_cs_fd.get_fd(), _send_buffer.data(), _send_buffer.size(), MSG_NOSIGNAL);
 	if (bytes > 0)

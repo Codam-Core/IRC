@@ -77,7 +77,10 @@ void Commands::broadcast_mode_changes(Channel* channel, Client& client)
         // check if we have to add a '+' or '-' to the mode string
         // we always add a '+' or '-' when the first mode is added, and we also add it when the adding state changes (from adding to removing or vice versa)
         if (mode_str.empty() || adding != change.adding)
+        {
             mode_str += (change.adding ? "+" : "-");
+            adding = change.adding;
+        }
 
         // add the mode character to the mode string
         mode_str += change.mode;

@@ -73,18 +73,44 @@ bool static handle_key_mode(Client& client, Channel* channel, bool adding, std::
     // If adding a key, set the key to the provided argument; otherwise, clear the key.
     if (adding)
     {
-        // true if the key is different from the current one
-        changed = channel->get_key() != mode_arguments.front();
+        // notify when the same key is set again, don't consider it a change.
+        if (channel->get_key() == mode_arguments.front())
+        {
+            stream.prefix().code(467).client(client).parameter(channel->get_name()).message("Key is already set").finish();
+            return false;
+        }
         channel->set_key(mode_arguments.front());
+        changed = true; // setting a new key is always a change, even if the mode was already set
     }
     else
         channel->set_key("");
     return changed;
 }
 
+bool is_number(const std::string& s)
+{
+    for (char c : s)
+    {
+        if (!std::isdigit(c))
+            return false;
+    }
+    return true;
+}
+
+void is_valid_number(const std::string& number)
+{
+    if (number[0] == '-')
+        throw std::invalid_argument("negative limit");
+    if (!is_number(number))
+        throw std::invalid_argument("not a number");
+}
+
 bool static handle_limit_mode(Client& client, Channel* channel, bool adding, std::queue<std::string>& mode_arguments, CommandStream& stream)
 {
-    if (adding)
+    // has there been a change?
+    bool changed;
+
+    if (adding && mode_arguments.empty())
     {
         // If adding a limit, we need to ensure that a limit argument is provided.
         if (mode_arguments.empty())
@@ -92,15 +118,20 @@ bool static handle_limit_mode(Client& client, Channel* channel, bool adding, std
             stream.prefix().code(461).client(client).command().message("Not enough parameters for +l").finish();
             return false;
         }
+    }
+
+    if (adding)
+    {
         // Try to convert the argument to an unsigned long and set the limit; if it fails, send an error message.
         try
         {
             // a limit must be a positive number: stoul would wrap "-5" around to a huge number, and 0 locks everyone out
-            if (mode_arguments.front()[0] == '-')
-                throw std::invalid_argument("negative limit");
+            is_valid_number(mode_arguments.front());
             size_t limit = std::stoul(mode_arguments.front());
             if (limit == 0)
                 throw std::invalid_argument("limit 0");
+            changed = set_or_unset_mode(channel, Channel::LIMIT, true);
+            changed = channel->get_limit() != limit;
             channel->set_limit(limit);
         }
         catch (const std::exception& e)
@@ -110,10 +141,13 @@ bool static handle_limit_mode(Client& client, Channel* channel, bool adding, std
         }
     }
     else
+    {
         channel->set_limit(0);
+        changed = set_or_unset_mode(channel, Channel::LIMIT, false);
+    }
 
     // Set or unset the limit mode on the channel based on the adding flag
-    return set_or_unset_mode(channel, Channel::LIMIT, adding);
+    return changed;
 }
 
 bool static handle_operator_mode(Client& client, Channel* channel, bool adding, std::queue<std::string>& mode_arguments, CommandStream& stream, Server& server)
@@ -212,7 +246,7 @@ void Commands::MODE(Client &client, const std::vector<std::string>& args, Comman
             case 'k':
                 if (handle_key_mode(client, channel, adding, mode_arguments, stream))
                     this->register_mode_change(std::string(1, mode), adding, adding ? std::optional<std::string>(mode_arguments.front()) : std::nullopt);
-                if (!mode_arguments.empty())
+                if (adding && !mode_arguments.empty())
                     mode_arguments.pop();
                 break;
             case 'l':
